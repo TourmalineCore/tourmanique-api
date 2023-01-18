@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  run-api-locally:
+    depends_on:
+      - picachu-api
+      - picachu-api-pgadmin
+      - picachu-api-s3
+
+  picachu-api:
+    build:
+      context: .
+    command: poetry run flask run
+    volumes:
+      - .:/app-workspace
+    ports:
+      - "7501:5000"
+    env_file:
+      - .env
+
+  picachu-api-postgres:
+    env_file:
+      - .env
+    ports:
+      - "7510:5432"
+
+  picachu-api-pgadmin:
+    container_name: picachu-api-pgadmin
+    image: dpage/pgadmin4:6.5
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "7513:80"
+
+  picachu-api-s3:
+    container_name: picachu-api-s3
+    image: minio/minio:latest
+    command: server /data --console-address ":7001"
+    restart: always
+    ports:
+      - "7511:9000"
+      - "7512:7001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    volumes:
+      - ./s3-data:/data
+    networks:
+      - picachu-net
+
+  picachu-api-rabbitmq:
+    env_file:
+      - .env
+    ports:
+      - "7516:5672"
+      - "7517:15672"
+
+  picachu-requests-consumer:
+    build:
+      context: .
+    command: poetry run python ./picachu/requests_consumer/requests_consumer.py
+    volumes:
+      - .:/app-workspace
+    env_file:
+      - .env
+
+  picachu-results-consumer:
+    build:
+      context: .
+    command: poetry run python ./picachu/results_consumer/results_consumer.py
+    volumes:
+      - .:/app-workspace
+    env_file:
+      - .env
