@@ -24,16 +24,6 @@ services:
     ports:
       - "7510:5432"
 
-  picachu-api-pgadmin:
-    container_name: picachu-api-pgadmin
-    image: dpage/pgadmin4:6.5
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - "7513:80"
-
   picachu-api-s3:
     container_name: picachu-api-s3
     image: minio/minio:latest
@@ -55,8 +45,8 @@ services:
     env_file:
       - .env
     ports:
-      - "7516:5672"
-      - "7517:15672"
+      - "7513:5672"
+      - "7514:15672"
 
   picachu-requests-consumer:
     build:
