@@ -130,3 +130,5 @@ dmypy.json
 
 /s3-data
 /.idea
+
+poetry.lock
