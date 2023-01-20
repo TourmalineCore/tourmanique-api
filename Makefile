@@ -57,7 +57,7 @@ endif
 ###
 .PHONY: help
 help: ;@true
-	$(info Makefile for Real Estate project)
+	$(info Makefile for Picachu project)
 	$(info )
 	$(info Avaliable targets: )
 	$(info  * install-local-deps                        - installs all dependencies from poetry.lock to have helpers for code locally)
@@ -65,7 +65,6 @@ help: ;@true
 	$(info  -- next will be executed via docker --)
 	$(info  * poetry                                    - executes poetry command in the **docker** container)
 	$(info  * poetry-install <package> <version>        - installs package in the **docker** container)
-	$(info  * poetry-install-dev <package> <version>    - installs dev package in the **docker** container)
 	$(info  * run                                       - runs the api locally via **docker**)
 	$(info  * test                                      - runs unit tests via **docker**)
 	$(info  * create-migration <migration_name>         - create migration with <migration_name> via **docker**)
@@ -94,11 +93,6 @@ poetry: ## executes poetry command in the docker container
 poetry-install: ## installs package in the **docker** container
 	docker compose -f docker-compose.yml -f docker-compose.local.yml build --quiet picachu-api
 	docker compose -f docker-compose.yml -f docker-compose.local.yml run --rm --no-deps picachu-api poetry add $(POETRY_INSTALL_PACKAGE_NAME) $(POETRY_INSTALL_PACKAGE_VERSION)
-
-#.PHONY: poetry-install-dev
-#pipenv-install-dev: ## installs dev package in the **docker** container
-#	docker compose -f docker-compose.yml -f docker-compose.local.yml build --quiet picachu-api
-#	docker compose -f docker-compose.yml -f docker-compose.local.yml run --rm --no-deps picachu-api poetry add --dev-dependency $(POETRY_INSTALL_PACKAGE_NAME) $(POETRY_INSTALL_PACKAGE_VERSION)
 
 .PHONY: run
 run: ## runs the api locally via **docker**
