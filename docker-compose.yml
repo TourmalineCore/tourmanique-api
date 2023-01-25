@@ -42,30 +42,30 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
-    depends_on:
-      - picachu-requests-consumer
-      - picachu-results-consumer
+#    depends_on:
+#      - picachu-requests-consumer
+#      - picachu-results-consumer
     networks:
       - picachu-net
 
-  picachu-requests-consumer:
-    container_name: picachu-requests-consumer
-    volumes:
-      - .:/app-workspace
-    env_file:
-      - .env
-    networks:
-      - picachu-net
+#  picachu-requests-consumer:
+#    container_name: picachu-requests-consumer
+#    volumes:
+#      - .:/app-workspace
+#    env_file:
+#      - .env
+#    networks:
+#      - picachu-net
 
 
-  picachu-results-consumer:
-    container_name: picachu-results-consumer
-    volumes:
-      - .:/app-workspace
-    env_file:
-      - .env
-    networks:
-      - picachu-net
+#  picachu-results-consumer:
+#    container_name: picachu-results-consumer
+#    volumes:
+#      - .:/app-workspace
+#    env_file:
+#      - .env
+#    networks:
+#      - picachu-net
 
 
 volumes:

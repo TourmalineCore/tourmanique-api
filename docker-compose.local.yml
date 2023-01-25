@@ -4,7 +4,6 @@ services:
   run-api-locally:
     depends_on:
       - picachu-api
-      - picachu-api-pgadmin
       - picachu-api-s3
 
   picachu-api:
@@ -48,20 +47,20 @@ services:
       - "7513:5672"
       - "7514:15672"
 
-  picachu-requests-consumer:
-    build:
-      context: .
-    command: poetry run python ./picachu/requests_consumer/requests_consumer.py
-    volumes:
-      - .:/app-workspace
-    env_file:
-      - .env
+#  picachu-requests-consumer:
+#    build:
+#      context: .
+#    command: poetry run python ./picachu/requests_consumer/requests_consumer.py
+#    volumes:
+#      - .:/app-workspace
+#    env_file:
+#      - .env
 
-  picachu-results-consumer:
-    build:
-      context: .
-    command: poetry run python ./picachu/results_consumer/results_consumer.py
-    volumes:
-      - .:/app-workspace
-    env_file:
-      - .env
+#  picachu-results-consumer:
+#    build:
+#      context: .
+#    command: poetry run python ./picachu/results_consumer/results_consumer.py
+#    volumes:
+#      - .:/app-workspace
+#    env_file:
+#      - .env

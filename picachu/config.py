@@ -6,9 +6,6 @@ import os
 ENV = os.getenv('FLASK_ENV')
 DEBUG = ENV == 'development'
 
-# SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
-# SQLALCHEMY_TRACK_MODIFICATIONS = False
-
 s3_endpoint = os.getenv('S3_ENDPOINT')
 if s3_endpoint is None:
     raise ValueError('You should specify S3_ENDPOINT environment variable to be able to connect to S3 bucket.')
@@ -29,5 +26,39 @@ s3_prefix = os.getenv('S3_PREFIX', default='')
 
 s3_use_ssl = os.getenv('S3_USE_SSL', default='true').lower() in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup']
 
-colors_number = os.getenv('COLORS_NUMBER')
+rabbitmq_host = os.getenv('RABBITMQ_HOST')
+rabbitmq_username = os.getenv('RABBITMQ_DEFAULT_USER')
+rabbitmq_password = os.getenv('RABBITMQ_DEFAULT_PASS')
+
+rabbitmq_requests_exchange_name = os.getenv('RABBITMQ_REQUESTS_EXCHANGE_NAME')
+
+if not rabbitmq_host:
+    raise ValueError('You should specify RABBITMQ_HOST to be able to connect to RabbitMQ.')
+
+if not rabbitmq_username:
+    raise ValueError('You should specify RABBITMQ_DEFAULT_USER to be able to connect to RabbitMQ.')
+
+if not rabbitmq_password:
+    raise ValueError('You should specify RABBITMQ_DEFAULT_PASS to be able to connect to RabbitMQ.')
+
+if not rabbitmq_requests_exchange_name:
+    raise ValueError('You should specify RABBITMQ_REQUESTS_EXCHANGE_NAME to be able to connect to requests exchange.')
+
+class ExchangeNamesConfig:
+    def __init__(self):
+        self.rabbitmq_requests_exchange_name = rabbitmq_requests_exchange_name
+
+
+class RabbitMQConfigProvider:
+    @staticmethod
+    def get_config():
+        return (
+            rabbitmq_host,
+            rabbitmq_username,
+            rabbitmq_password,
+        )
+
+    @staticmethod
+    def get_exchange_names_config():
+        return ExchangeNamesConfig()
 

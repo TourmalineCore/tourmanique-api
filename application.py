@@ -3,7 +3,6 @@ from flask_cors import CORS
 from flask_migrate import upgrade as _upgrade
 
 from picachu.domain.dal import db, migrate, build_connection_string
-from picachu.modules.labels.labels_routes import labels_blueprint
 from picachu.modules.photos.photos_routes import photos_blueprint
 
 
@@ -37,7 +36,6 @@ def create_app():
 def register_blueprints(app):
     """Register all blueprints for application"""
     api_blueprint = Blueprint('api', __name__, url_prefix='/api')
-    api_blueprint.register_blueprint(labels_blueprint)
     api_blueprint.register_blueprint(photos_blueprint)
 
     app.register_blueprint(api_blueprint)
