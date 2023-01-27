@@ -76,7 +76,7 @@ _app_db_engine = create_engine(
 
 _add_engine_pidguard(_app_db_engine)
 
-meta = MetaData(bind=_app_db_engine)
+meta = MetaData()
 db = SQLAlchemy(metadata=meta)
 migrate = Migrate()
 
