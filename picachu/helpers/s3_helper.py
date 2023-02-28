@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import boto3
 
-from picachu import config
+from picachu.config import s3_config
 from picachu.helpers.s3_paths import append_prefix, get_parent_path, create_folder_path, build_object_url
 
 ACL_PRIVATE = 'private'
@@ -31,36 +31,36 @@ class Singleton(type):
 class S3Helper(metaclass=Singleton):
     def __init__(self):
         self.session = boto3.session.Session(
-            aws_access_key_id=config.s3_access_key_id,
-            aws_secret_access_key=config.s3_secret_access_key,
+            aws_access_key_id=s3_config.s3_access_key_id,
+            aws_secret_access_key=s3_config.s3_secret_access_key,
         )
 
     def get_client(self) -> S3Client:
         client: S3Client = self.session.client(
             's3',
-            endpoint_url=config.s3_endpoint,
-            use_ssl=config.s3_use_ssl
+            endpoint_url=s3_config.s3_endpoint,
+            use_ssl=s3_config.s3_use_ssl
         )
         return client
 
     def get_resource(self) -> S3ServiceResource:
         resource: S3ServiceResource = self.session.resource(
             's3',
-            endpoint_url=config.s3_endpoint,
-            use_ssl=config.s3_use_ssl,
+            endpoint_url=s3_config.s3_endpoint,
+            use_ssl=s3_config.s3_use_ssl,
         )
         return resource
 
     @staticmethod
     def s3_get_full_file_url(
             file_path_in_bucket: str,
-            s3_bucket_name: Optional[str] = config.s3_bucket_name,
-            s3_prefix: Optional[str] = config.s3_prefix,
+            s3_bucket_name: Optional[str] = s3_config.s3_bucket_name,
+            s3_prefix: Optional[str] = s3_config.s3_prefix,
     ):
         result_path_in_bucket = append_prefix(path=file_path_in_bucket, prefix=s3_prefix)
 
         return build_object_url(
-            endpoint_url=config.s3_endpoint,
+            endpoint_url=s3_config.s3_endpoint,
             bucket=s3_bucket_name,
             path=result_path_in_bucket,
         )
@@ -82,8 +82,8 @@ class S3Helper(metaclass=Singleton):
             self,
             file_path_in_bucket: str,
             file_bytes: bytes,
-            s3_bucket_name: str = config.s3_bucket_name,
-            s3_prefix: Optional[str] = config.s3_prefix,
+            s3_bucket_name: str = s3_config.s3_bucket_name,
+            s3_prefix: Optional[str] = s3_config.s3_prefix,
             public: Optional[bool] = False,
             create_subdirs: Optional[bool] = False,
     ):
@@ -108,8 +108,8 @@ class S3Helper(metaclass=Singleton):
     def s3_set_existed_object_acl(
             self,
             file_path_in_bucket: str,
-            s3_bucket_name: str = config.s3_bucket_name,
-            s3_prefix: Optional[str] = config.s3_prefix,
+            s3_bucket_name: str = s3_config.s3_bucket_name,
+            s3_prefix: Optional[str] = s3_config.s3_prefix,
             public: Optional[bool] = False,
     ):
         resource: S3ServiceResource = self.get_resource()
@@ -127,8 +127,8 @@ class S3Helper(metaclass=Singleton):
     def s3_create_folder(
             self,
             file_path_in_bucket: str,
-            s3_bucket_name: str = config.s3_bucket_name,
-            s3_prefix: Optional[str] = config.s3_prefix,
+            s3_bucket_name: str = s3_config.s3_bucket_name,
+            s3_prefix: Optional[str] = s3_config.s3_prefix,
             is_path_absolute: bool = False,
             create_subdirs: bool = False,
     ):
@@ -153,8 +153,8 @@ class S3Helper(metaclass=Singleton):
     def s3_download_file(
             self,
             file_path_in_bucket,
-            s3_bucket_name: str = config.s3_bucket_name,
-            s3_prefix: Optional[str] = config.s3_prefix,
+            s3_bucket_name: str = s3_config.s3_bucket_name,
+            s3_prefix: Optional[str] = s3_config.s3_prefix,
     ) -> bytes:
         bucket: Bucket = self.get_resource().Bucket(s3_bucket_name)
         result_path_in_bucket = append_prefix(path=file_path_in_bucket, prefix=s3_prefix)
@@ -169,8 +169,8 @@ class S3Helper(metaclass=Singleton):
     def s3_delete_file(
             self,
             file_path_in_bucket,
-            s3_bucket_name: str = config.s3_bucket_name,
-            s3_prefix: Optional[str] = config.s3_prefix,
+            s3_bucket_name: str = s3_config.s3_bucket_name,
+            s3_prefix: Optional[str] = s3_config.s3_prefix,
     ):
         bucket: Bucket = self.get_resource().Bucket(s3_bucket_name)
         result_path_in_bucket = append_prefix(path=file_path_in_bucket, prefix=s3_prefix)
@@ -187,7 +187,7 @@ class S3Helper(metaclass=Singleton):
         logging.warning(
             f'File deleted from bucket={s3_bucket_name} with key={result_path_in_bucket}')
 
-    def _ensure_dir(self, path: str, s3_bucket_name: str = config.s3_bucket_name):
+    def _ensure_dir(self, path: str, s3_bucket_name: str = s3_config.s3_bucket_name):
         bucket: Bucket = self.get_resource().Bucket(s3_bucket_name)
 
         if path in ('', '/', '.'):

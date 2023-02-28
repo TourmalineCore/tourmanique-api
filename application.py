@@ -2,14 +2,15 @@ from flask import Flask, Blueprint
 from flask_cors import CORS
 from flask_migrate import upgrade as _upgrade
 
-from picachu.domain.dal import db, migrate, build_connection_string
+from picachu.domain.data_access_layer.build_connection_string import build_connection_string
+from picachu.domain.data_access_layer.db import db, migrate
 from picachu.modules.photos.photos_routes import photos_blueprint
 
 
 def create_app():
     """Application factory, used to create application"""
     app = Flask(__name__)
-    app.config.from_object('picachu.config')
+    app.config.from_object('picachu.config.flask_config')
 
     # without this /feeds will work but /feeds/ with the slash at the end won't
     app.url_map.strict_slashes = False
