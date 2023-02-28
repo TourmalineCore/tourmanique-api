@@ -1,5 +1,5 @@
 from picachu.domain import Photo
-from picachu.domain.dal import create_session
+from picachu.domain.data_access_layer.session import session
 
 
 class GetPhotoQuery:
@@ -7,8 +7,9 @@ class GetPhotoQuery:
     def __init__(self):
         pass
 
-    def by_id(self, photo_id):
-        current_session = create_session()
+    @staticmethod
+    def by_id(photo_id):
+        current_session = session()
         try:
             return current_session \
                 .query(Photo) \
@@ -18,8 +19,9 @@ class GetPhotoQuery:
         finally:
             current_session.close()
 
-    def by_s3_path(self, photo_path_in_s3):
-        current_session = create_session()
+    @staticmethod
+    def by_s3_path(photo_path_in_s3):
+        current_session = session()
         try:
             return current_session \
                 .query(Photo) \

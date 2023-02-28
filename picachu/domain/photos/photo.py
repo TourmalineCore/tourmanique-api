@@ -1,4 +1,4 @@
-from picachu.domain.dal import db
+from picachu.domain.data_access_layer.db import db
 
 
 class Photo(db.Model):
