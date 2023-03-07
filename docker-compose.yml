@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  run-api-locally:
+    container_name: picachu-api-local-starter
+    restart: "no"
+    image: tianon/true
+    depends_on:
+      - picachu-api
+
+  picachu-api:
+    container_name: picachu-api
+    image: picachu-api:latest
+    restart: unless-stopped
+    depends_on:
+      - picachu-api-postgres
+      - picachu-api-rabbitmq
+    networks:
+      - picachu-net
+
+  picachu-api-postgres:
+    container_name: picachu-api-postgres
+    image: postgres:13.3-alpine
+    restart: always
+    volumes:
+      - picachu-api-postgres-data:/var/lib/postgresql/data/
+    healthcheck:
+      test: "pg_isready -U $$POSTGRES_USER"
+      timeout: 10s
+      interval: 10s
+      retries: 3
+    networks:
+      - picachu-net
+
+
+  picachu-api-rabbitmq:
+    container_name: picachu-api-rabbitmq
+    image: rabbitmq:3.9.13-management-alpine
+    restart: always
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    networks:
+      - picachu-net
+
+
+volumes:
+  picachu-api-postgres-data:
+
+networks:
+  picachu-net:
+    driver: bridge
