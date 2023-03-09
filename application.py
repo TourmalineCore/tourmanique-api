@@ -1,15 +1,20 @@
 from flask import Flask, Blueprint
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_migrate import upgrade as _upgrade
 
 from picachu.domain.data_access_layer.build_connection_string import build_connection_string
 from picachu.domain.data_access_layer.db import db, migrate
+from picachu.modules.auth.auth_routes import auth_blueprint
 from picachu.modules.photos.photos_routes import photos_blueprint
 
 
 def create_app():
     """Application factory, used to create application"""
     app = Flask(__name__)
+    app.config["JWT_SECRET_KEY"] = "super-puper-secret"
+    jwt = JWTManager(app)
+
     app.config.from_object('picachu.config.flask_config')
 
     # without this /feeds will work but /feeds/ with the slash at the end won't
@@ -38,5 +43,7 @@ def register_blueprints(app):
     """Register all blueprints for application"""
     api_blueprint = Blueprint('api', __name__, url_prefix='/api')
     api_blueprint.register_blueprint(photos_blueprint)
+    api_blueprint.register_blueprint(auth_blueprint)
 
     app.register_blueprint(api_blueprint)
+
