@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  run-api-locally:
+    depends_on:
+      - picachu-api
+      - picachu-api-s3
+
+  picachu-api:
+    build:
+      context: .
+    command: poetry run flask run
+    volumes:
+      - .:/app-workspace
+    ports:
+      - "7501:5000"
+    env_file:
+      - .env
+
+  picachu-api-postgres:
+    env_file:
+      - .env
+    ports:
+      - "7510:5432"
+
+  picachu-api-s3:
+    container_name: picachu-api-s3
+    image: minio/minio:latest
+    command: server /data --console-address ":7001"
+    restart: always
+    ports:
+      - "7511:9000"
+      - "7512:7001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    volumes:
+      - ./s3-data:/data
+    networks:
+      - picachu-net
+
+  picachu-api-rabbitmq:
+    env_file:
+      - .env
+    ports:
+      - "7513:5672"
+      - "7514:15672"
