@@ -13,3 +13,13 @@ class NewGalleryCommand:
             return gallery_entity.id
         finally:
             current_session.close()
+
+    @classmethod
+    def rename(cls, gallery_entity: Gallery):
+        current_session = session()
+        try:
+            current_session.add(gallery_entity)
+            current_session.commit()
+            return gallery_entity.name
+        finally:
+            current_session.close()
