@@ -1,7 +1,7 @@
 from picachu.domain import Gallery
 from picachu.domain.data_access_layer.session import session
 from picachu.modules.auth.auth_routes import USER_ID
-from sqlalchemy.sql import exists
+
 
 class IsUserHasAccess:
     def to_service(self, user_id):
@@ -10,12 +10,12 @@ class IsUserHasAccess:
         return False
 
     @staticmethod
-    def to_gallery(user_id):
+    def to_gallery(current_user_id):
         current_session = session()
         try:
             return current_session \
-                .query(exists().where(Gallery.user_id == user_id)) \
-                .scalar()
+                .query(Gallery) \
+                .filter(Gallery.user_id == current_user_id) \
+                .all()
         finally:
             current_session.close()
-# toDo: update BD
