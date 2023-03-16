@@ -43,9 +43,10 @@ def rename_gallery(gallery_id):
     new_gallery_name = request.json.get('name')
     if not IsUserHasAccess.to_gallery(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+    if not GetGalleryQuery.by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
     try:
-        new_gallery_name = UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
-        return jsonify(new_gallery_name)
+        UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
