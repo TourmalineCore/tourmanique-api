@@ -5,6 +5,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from picachu.domain import Gallery
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
+from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
 
@@ -47,6 +48,23 @@ def rename_gallery(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
     try:
         UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
+        return jsonify({'msg': 'OK'}), HTTPStatus.OK
+
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+@galleries_blueprint.route('/<int:gallery_id>/', methods=['DELETE'])
+@jwt_required()
+def delete_gallery(gallery_id):
+    current_user_id = get_jwt_identity()
+    if not IsUserHasAccess.to_gallery(current_user_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+    if not GetGalleryQuery.by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+    try:
+        DeleteGalleryCommand().delete(gallery_id)
+        return jsonify({'msg': 'OK'}), HTTPStatus.OK
 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
