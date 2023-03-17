@@ -7,6 +7,7 @@ class Gallery(db.Model):
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     name = db.Column(db.String(2048), nullable=True)
     user_id = db.Column(db.BigInteger, nullable=True)
+    deleted_at_utc = db.Column(db.DateTime, nullable=True)
 
     photos = db.relationship('Photo', back_populates='galleries')
 
