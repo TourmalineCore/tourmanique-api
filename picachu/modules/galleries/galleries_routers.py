@@ -13,6 +13,7 @@ from picachu.modules.galleries.commands.update_gallery_command import UpdateGall
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
 from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQuery
+from picachu.modules.photos.queries.get_photos_in_gallery_query import GetPhotosInGalleryQuery
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
@@ -85,6 +86,25 @@ def get_galleries():
         result = []
         for gallery in list_galleries:
             result.append({'id': gallery.id, 'name': gallery.name, 'photosCount': GetPhotoQuery.count_photos(gallery.id)})
+        return result
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+@galleries_blueprint.route('/<int:gallery_id>/photos', methods=['GET'])
+@jwt_required()
+def get_photos(gallery_id):
+    current_user_id = get_jwt_identity()
+    if not IsUserHasAccess.to_gallery(current_user_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+    if not GetGalleryQuery.by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+    try:
+        list_photos = GetPhotosInGalleryQuery().get(gallery_id)
+        print(list_photos)
+        result = []
+        for photo in list_photos:
+            result.append({'id': photo.id, 'photo_file_path_s3': photo.photo_file_path_s3, 'uniqueness': 90})
         return result
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
