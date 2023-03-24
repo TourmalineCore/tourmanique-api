@@ -12,7 +12,6 @@ from picachu.modules.galleries.commands.update_gallery_command import UpdateGall
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
-from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQuery
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 
