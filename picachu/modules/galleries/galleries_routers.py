@@ -4,16 +4,18 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from picachu.domain import Gallery
+from picachu.helpers.s3_paths import create_path_for_photo
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
+from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQuery
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
-from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQuery
 from picachu.modules.photos.queries.get_photos_in_gallery_query import GetPhotosInGalleryQuery
+
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
@@ -82,7 +84,6 @@ def get_galleries():
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
         list_galleries = GetGalleriesQuery().get(current_user_id)
-        print(list_galleries)
         result = []
         for gallery in list_galleries:
             result.append({'id': gallery.id, 'name': gallery.name, 'photosCount': GetPhotoQuery.count_photos(gallery.id)})
@@ -95,16 +96,16 @@ def get_galleries():
 @jwt_required()
 def get_photos(gallery_id):
     current_user_id = get_jwt_identity()
+    photo_s3_path = create_path_for_photo()
     if not IsUserHasAccess.to_gallery(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
     try:
-        list_photos = GetPhotosInGalleryQuery().get(gallery_id)
-        print(list_photos)
+        list_photos = GetPhotosInGalleryQuery().get_photos(gallery_id)
         result = []
         for photo in list_photos:
-            result.append({'id': photo.id, 'photo_file_path_s3': photo.photo_file_path_s3, 'uniqueness': 90})
+            result.append({'id': photo.id, 'photo_file_path_s3': photo_s3_path, })
         return result
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST

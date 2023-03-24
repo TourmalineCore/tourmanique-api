@@ -13,6 +13,6 @@ class DeleteGalleryQuery:
                 .get(gallery_id)
             gallery.deleted_at_utc = datetime.utcnow()
             current_session.commit()
-            return '', 204
+            return gallery_id
         finally:
             current_session.close()

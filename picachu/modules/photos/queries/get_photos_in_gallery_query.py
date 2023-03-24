@@ -4,7 +4,7 @@ from picachu.domain.data_access_layer.session import session
 
 class GetPhotosInGalleryQuery:
     @classmethod
-    def get(cls, gallery_id) -> int:
+    def get_photos(cls, gallery_id) -> int:
         current_session = session()
         try:
             list_photos = current_session \
