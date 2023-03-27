@@ -1,7 +1,9 @@
 from http import HTTPStatus
+import random
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from pydantic import ValidationError
 
 from picachu.domain import Gallery
 from picachu.helpers.s3_paths import create_path_for_photo
@@ -14,9 +16,11 @@ from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQu
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
+from picachu.modules.photos.commands.pagination_params import PaginationParams
 from picachu.modules.photos.queries.get_photos_in_gallery_query import GetPhotosInGalleryQuery
 
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
+from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 
@@ -101,11 +105,28 @@ def get_photos(gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+
+    sorted_by = request.args.get('sortedBy', default='uniqueness', type=str)
+
     try:
-        list_photos = GetPhotosInGalleryQuery().get_photos(gallery_id)
+        params = PaginationParams(offset=request.args.get('offset'),
+                                  limit=request.args.get('limit'))
+    except ValidationError as err:
+        return jsonify({'error': str(err)}), 400
+
+    GetSortedPhotosQuery().get_sorted_photos(gallery_id, sorted_by)
+
+    try:
+        list_photos = GetPhotosInGalleryQuery().get_photos_in_gallery(gallery_id, params.offset, params.limit)
         result = []
         for photo in list_photos:
-            result.append({'id': photo.id, 'photo_file_path_s3': photo_s3_path, })
+            result.append(
+                {
+                    'id': photo.id,
+                    'photo_file_path_s3': photo_s3_path,
+                    'uniqueness': random.randint(0, 100)
+                }
+            )
         return result
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST

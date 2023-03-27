@@ -1,7 +1,24 @@
 from picachu.domain import Photo
+from flask import request
 
-class GetSortedQuery:
+from picachu.domain.data_access_layer.session import session
+
+
+class GetSortedPhotosQuery:
     @classmethod
-    def sorted(cls, gallery_id) -> int:
-query = Photo.query.filter(gallery_id=gallery_id).order_by(Photo.uniqueness.desc(), Photo.date_of_upload)
-query = Photo.query.filter(gallery_id=gallery_id).order_by(Photo.date_of_upload.desc())
+    def get_sorted_photos(cls, gallery_id, sorted_by) -> int:
+        current_session = session()
+        if sorted_by == 'uniqueness':
+            sorting_by_uniq = current_session \
+                .query(Photo) \
+                .filter(Photo.gallery_id == gallery_id) \
+                .order_by(Photo.uniqueness.desc())
+            return sorting_by_uniq
+        elif sorted_by == 'downloadDate':
+            sorting_by_date = current_session \
+                .query(Photo) \
+                .filter(Photo.gallery_id == gallery_id) \
+                .order_by(Photo.date_of_upload.desc())
+            return sorting_by_date
+        else:
+            return 'Неверный параметр сортировки', 400
