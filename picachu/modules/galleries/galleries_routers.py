@@ -65,7 +65,7 @@ def delete_gallery(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
     try:
         DeleteGalleryQuery().delete(gallery_id)
-        return jsonify({'msg': 'OK'}), HTTPStatus.OK
+        return jsonify(gallery_id), HTTPStatus.OK
 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
