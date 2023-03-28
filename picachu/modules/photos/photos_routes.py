@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 from http import HTTPStatus
 
 import imagehash
@@ -39,7 +40,9 @@ def add_photo(gallery_id):
     photo_hash = str(imagehash.average_hash(Image.open(io.BytesIO(photo_bytes))))
     photo_entity = Photo(photo_file_path_s3=photo_s3_path,
                          hash=photo_hash,
-                         gallery_id=gallery_id)
+                         gallery_id=gallery_id,
+                         date_of_upload=datetime.utcnow(),
+                         )
     photo_id = NewPhotoCommand().create(photo_entity)
 
     message_with_photo_parameters = {
@@ -50,4 +53,4 @@ def add_photo(gallery_id):
     RabbitMqMessagePublisher().publish_message_to_exchange(exchange_name=rabbitmq_photo_for_models_exchange_name,
                                                            message=message_with_photo_parameters)
 
-    return 'OK.'
+    return jsonify({'msg': 'OK'}), HTTPStatus.OK
