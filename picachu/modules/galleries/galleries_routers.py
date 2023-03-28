@@ -77,14 +77,15 @@ def delete_gallery(gallery_id):
 @jwt_required()
 def get_galleries():
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_service(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
-        list_galleries = GetGalleriesQuery().get(current_user_id)
-        print(list_galleries)
+        galleries_list = GetGalleriesQuery().by_user_id(current_user_id)
         result = []
-        for gallery in list_galleries:
-            result.append({'id': gallery.id, 'name': gallery.name, 'photosCount': GetPhotoQuery.count_photos(gallery.id)})
+        for gallery in galleries_list:
+            result.append({'id': gallery.id,
+                           'name': gallery.name,
+                           'photosCount': GetPhotoQuery.count_photos(gallery.id)})
         return result
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST

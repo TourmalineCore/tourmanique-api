@@ -1,16 +1,18 @@
+from typing import List
+
 from picachu.domain import Gallery
 from picachu.domain.data_access_layer.session import session
 
 
 class GetGalleriesQuery:
     @classmethod
-    def get(cls, current_user_id) -> int:
+    def by_user_id(cls, current_user_id: int) -> List:
         current_session = session()
         try:
-            list_galleries = current_session \
+            galleries_list = current_session \
                 .query(Gallery) \
                 .filter(Gallery.user_id == current_user_id) \
                 .all()
-            return list_galleries
+            return galleries_list
         finally:
             current_session.close()

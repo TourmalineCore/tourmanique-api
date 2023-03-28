@@ -7,7 +7,7 @@ class GetGalleryQuery:
         pass
 
     @staticmethod
-    def by_id(gallery_id):
+    def by_id(gallery_id: int) -> int:
         current_session = session()
         try:
             return current_session \
