@@ -106,20 +106,20 @@ def get_photos(gallery_id):
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
 
-    sorted_by = request.args.get('sortedBy', default='uniqueness', type=str)
+    sorted_by = request.args.get('sortedBy', type=str)  # ToDo: убрал дефолт, нужен ли валэрор?
 
     try:
         params = PaginationParams(offset=request.args.get('offset'),
                                   limit=request.args.get('limit'))
     except ValidationError as err:
-        return jsonify({'error': str(err)}), 400
+        return jsonify({'error': str(err)}), HTTPStatus.BAD_REQUEST
 
     GetSortedPhotosQuery().get_sorted_photos(gallery_id, sorted_by)
 
     try:
-        list_photos = GetPhotosInGalleryQuery().get_photos_in_gallery(gallery_id, params.offset, params.limit)
+        photos_list = GetPhotosInGalleryQuery().get_photos_in_gallery(gallery_id, params.offset, params.limit)
         result = []
-        for photo in list_photos:
+        for photo in photos_list:
             result.append(
                 {
                     'id': photo.id,

@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from picachu.domain import Photo
 from flask import request
 
@@ -21,4 +23,4 @@ class GetSortedPhotosQuery:
                 .order_by(Photo.date_of_upload.desc())
             return sorting_by_date
         else:
-            return 'Неверный параметр сортировки', 400
+            return 'Bad sorting parameters', HTTPStatus.BAD_REQUEST

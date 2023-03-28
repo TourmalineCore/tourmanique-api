@@ -1,10 +1,12 @@
+from typing import List
+
 from picachu.domain import Photo
 from picachu.domain.data_access_layer.session import session
 
 
 class GetPhotosInGalleryQuery:
     @classmethod
-    def get_photos_in_gallery(cls, gallery_id, offset, limit) -> int:
+    def get_photos_in_gallery(cls, gallery_id: int, offset: int, limit: int) -> List:
         current_session = session()
         try:
             list_photos = current_session \
