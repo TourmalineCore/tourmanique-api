@@ -6,13 +6,12 @@ class GetGalleryQuery:
     def __init__(self):
         pass
 
-    @staticmethod
-    def by_id(gallery_id):
+    @classmethod
+    def by_id(cls, gallery_id: Gallery) -> int:
         current_session = session()
         try:
             return current_session \
                 .query(Gallery) \
-                .filter(Gallery.id == gallery_id) \
-                .one_or_none()
+                .get(gallery_id)
         finally:
             current_session.close()
