@@ -7,11 +7,11 @@ from picachu.domain import Gallery
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
+from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
-from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
@@ -44,10 +44,10 @@ def add_gallery():
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
     new_gallery_name = request.json.get('name')
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
         UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
@@ -60,13 +60,13 @@ def rename_gallery(gallery_id):
 @jwt_required()
 def delete_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
-        DeleteGalleryQuery().delete(gallery_id)
-        return jsonify({'msg': 'OK'}), HTTPStatus.OK
+        DeleteGalleryCommand().delete(gallery_id)
+        return jsonify(gallery_id), HTTPStatus.OK
 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
