@@ -43,10 +43,10 @@ def add_gallery():
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
     new_gallery_name = request.json.get('name')
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
         UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
@@ -59,10 +59,10 @@ def rename_gallery(gallery_id):
 @jwt_required()
 def delete_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
         DeleteGalleryCommand().delete(gallery_id)
         return jsonify(gallery_id), HTTPStatus.OK

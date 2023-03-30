@@ -7,7 +7,7 @@ from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 
 class DeleteGalleryCommand:
     @classmethod
-    def delete(cls, gallery_id: Gallery) -> int:
+    def delete(cls, gallery_id: int) -> int:
         gallery_entity = GetGalleryQuery().by_id(gallery_id)
         current_session = session()
         try:
