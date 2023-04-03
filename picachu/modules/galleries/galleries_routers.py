@@ -12,6 +12,7 @@ from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCom
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
+from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 
@@ -67,5 +68,23 @@ def delete_gallery(gallery_id):
         DeleteGalleryCommand().delete(gallery_id)
         return jsonify(gallery_id), HTTPStatus.OK
 
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+@galleries_blueprint.route('/', methods=['GET'])
+@jwt_required()
+def get_galleries():
+    current_user_id = get_jwt_identity()
+    if not IsUserHasAccess.to_service(current_user_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+    try:
+        galleries_list = GetGalleryQuery().by_user_id(current_user_id)
+        result = []
+        for gallery in galleries_list:
+            result.append({'id': gallery.id,
+                           'name': gallery.name,
+                           'photosCount': GetPhotoQuery.count_photos(gallery.id)})
+        return jsonify(result), HTTPStatus.OK
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST

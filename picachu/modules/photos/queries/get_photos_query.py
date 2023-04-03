@@ -30,3 +30,14 @@ class GetPhotoQuery:
 
         finally:
             current_session.close()
+
+    @staticmethod
+    def count_photos(gallery_id: int) -> int:
+        current_session = session()
+        try:
+            return current_session \
+                .query(Photo) \
+                .filter(Photo.gallery_id == gallery_id) \
+                .count()
+        finally:
+            current_session.close()
