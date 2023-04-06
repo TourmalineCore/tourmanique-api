@@ -8,7 +8,7 @@ from picachu.domain.data_access_layer.session import session
 
 class GetSortedPhotosQuery:
     @classmethod
-    def get_sorted_photos(cls, gallery_id, sorted_by) -> int:
+    def get_sorted_photos(cls, gallery_id: int, sorted_by: str) -> tuple[str, HTTPStatus]:
         current_session = session()
         if sorted_by == 'uniqueness':
             sorting_by_uniq = current_session \

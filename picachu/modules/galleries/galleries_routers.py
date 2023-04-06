@@ -101,10 +101,10 @@ def get_galleries():
 def get_photos(gallery_id):
     current_user_id = get_jwt_identity()
     photo_s3_path = create_path_for_photo()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
 
     sorted_by = request.args.get('sortedBy', type=str)  # ToDo: убрал дефолт, нужен ли валэрор?
 
