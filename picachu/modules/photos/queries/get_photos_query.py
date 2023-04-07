@@ -32,7 +32,7 @@ class GetPhotoQuery:
             current_session.close()
 
     @staticmethod
-    def count_photos(gallery_id):
+    def count_photos(gallery_id: int) -> int:
         current_session = session()
         try:
             return current_session \
