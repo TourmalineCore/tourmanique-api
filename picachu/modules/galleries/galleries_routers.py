@@ -14,6 +14,8 @@ from picachu.modules.galleries.commands.update_gallery_command import UpdateGall
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 
+from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
+
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 
 
