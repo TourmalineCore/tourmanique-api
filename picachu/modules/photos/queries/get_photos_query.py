@@ -1,3 +1,5 @@
+from typing import List
+
 from picachu.domain import Photo
 from picachu.domain.data_access_layer.session import session
 
@@ -39,5 +41,18 @@ class GetPhotoQuery:
                 .query(Photo) \
                 .filter(Photo.gallery_id == gallery_id) \
                 .count()
+        finally:
+            current_session.close()
+
+    @staticmethod
+    def by_limit() -> List:
+        current_session = session()
+        try:
+            photos_list = current_session \
+                .query(Photo) \
+                .order_by(Photo.photo_file_path_s3.desc()) \
+                .limit(4) \
+                .all()
+            return photos_list
         finally:
             current_session.close()

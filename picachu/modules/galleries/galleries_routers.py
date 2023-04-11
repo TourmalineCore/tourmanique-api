@@ -82,10 +82,14 @@ def get_galleries():
     try:
         galleries_list = GetGalleryQuery().by_user_id(current_user_id)
         result = []
+        photos_list = GetPhotoQuery().by_limit()
+        preview = list(map(lambda photo: {'photoPath': photo.photo_file_path_s3}, photos_list))
         for gallery in galleries_list:
             result.append({'id': gallery.id,
                            'name': gallery.name,
-                           'photosCount': GetPhotoQuery.count_photos(gallery.id)})
+                           'photosCount': GetPhotoQuery.count_photos(gallery.id),
+                           'previewPhotos': preview
+                           })
         return jsonify(result), HTTPStatus.OK
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST

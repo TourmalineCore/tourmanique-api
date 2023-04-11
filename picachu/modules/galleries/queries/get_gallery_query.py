@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from picachu.domain import Gallery
+from picachu.domain import Gallery, Photo
 from picachu.domain.data_access_layer.session import session
 
 
