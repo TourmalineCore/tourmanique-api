@@ -10,12 +10,13 @@ class IsUserHasAccess:
         return False
 
     @staticmethod
-    def to_gallery(current_user_id):
+    def to_gallery(current_user_id, gallery_id):
         current_session = session()
         try:
             return current_session \
                 .query(Gallery) \
                 .filter(Gallery.user_id == current_user_id) \
-                .all()
+                .filter(Gallery.id == gallery_id) \
+                .one_or_none()
         finally:
             current_session.close()

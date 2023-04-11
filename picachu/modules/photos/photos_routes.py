@@ -14,7 +14,6 @@ from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.photos.commands.new_photo_command import NewPhotoCommand
 from picachu.helpers.s3_helper import S3Helper
 from picachu.helpers.s3_paths import create_path_for_photo
-from picachu.modules.photos.queries.get_photos_in_gallery_query import GetPhotosInGalleryQuery
 
 photos_blueprint = Blueprint('photos', __name__, url_prefix='/photos')
 

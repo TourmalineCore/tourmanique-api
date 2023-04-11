@@ -3,10 +3,8 @@ import random
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from pydantic import ValidationError
 
 from picachu.domain import Gallery
-from picachu.helpers.s3_paths import create_path_for_photo
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
@@ -17,7 +15,6 @@ from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQu
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
 from picachu.modules.photos.commands.pagination_params import PaginationParams
-from picachu.modules.photos.queries.get_photos_in_gallery_query import GetPhotosInGalleryQuery
 
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
@@ -100,33 +97,30 @@ def get_galleries():
 @jwt_required()
 def get_photos(gallery_id):
     current_user_id = get_jwt_identity()
-    photo_s3_path = create_path_for_photo()
     if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
 
-    sorted_by = request.args.get('sortedBy', type=str)  # ToDo: убрал дефолт, нужен ли валэрор?
-
+    sorted_by = request.args.get('sortedBy', type=str)
+    print(sorted_by)
+    if sorted_by != 'uniqueness' and sorted_by != 'downloadDate':
+        return jsonify({'msg': 'Add correct sortedBy'}), HTTPStatus.BAD_REQUEST
+    params = PaginationParams(offset=request.args.get('offset'),
+                              limit=request.args.get('limit'))
+    photos_sorted = GetSortedPhotosQuery().get_sorted_photos(gallery_id, sorted_by, params.offset, params.limit)
+    result = []
     try:
-        params = PaginationParams(offset=request.args.get('offset'),
-                                  limit=request.args.get('limit'))
-    except ValidationError as err:
-        return jsonify({'error': str(err)}), HTTPStatus.BAD_REQUEST
-
-    GetSortedPhotosQuery().get_sorted_photos(gallery_id, sorted_by)
-
-    try:
-        photos_list = GetPhotosInGalleryQuery().get_photos_in_gallery(gallery_id, params.offset, params.limit)
-        result = []
-        for photo in photos_list:
+        for photo in photos_sorted:
             result.append(
                 {
                     'id': photo.id,
-                    'photo_file_path_s3': photo_s3_path,
+                    'photo_file_path_s3': photo.photo_file_path_s3,
                     'uniqueness': random.randint(0, 100)
                 }
             )
-        return result
+        return jsonify({
+            'list': result, 'totalNumberOfItems': GetPhotoQuery.count_photos(gallery_id)
+        })
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
