@@ -24,10 +24,10 @@ photos_blueprint = Blueprint('photos', __name__, url_prefix='/photos')
 def add_photo(gallery_id):
     photo_bytes = request.get_data()
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
-    if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+    if not GetGalleryQuery().by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
 
     photo_s3_path = create_path_for_photo()
 
