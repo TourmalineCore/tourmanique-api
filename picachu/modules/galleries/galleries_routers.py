@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from picachu.domain import Gallery
+from picachu.domain import Gallery, Photo
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
@@ -45,7 +45,7 @@ def add_gallery():
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
     new_gallery_name = request.json.get('name')
-    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
@@ -77,7 +77,7 @@ def delete_gallery(gallery_id):
 @jwt_required()
 def get_galleries():
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_service(current_user_id):
+    if not IsUserHasAccess().to_service(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
         galleries_list = GetGalleryQuery().by_user_id(current_user_id)

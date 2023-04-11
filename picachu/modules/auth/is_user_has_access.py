@@ -4,6 +4,9 @@ from picachu.modules.auth.auth_routes import USER_ID
 
 
 class IsUserHasAccess:
+    def __init__(self):
+        pass
+
     @staticmethod
     def to_service(user_id):
         if user_id == USER_ID:
