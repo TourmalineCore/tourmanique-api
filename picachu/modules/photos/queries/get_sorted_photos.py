@@ -11,21 +11,18 @@ class GetSortedPhotosQuery:
     @classmethod
     def get_sorted_photos(cls, gallery_id: int, sorted_by: str, offset: int, limit: int) -> List[Photo]:
         current_session = session()
+
+        gallery_list = current_session \
+            .query(Photo) \
+            .filter(Photo.gallery_id == gallery_id)
+
         if sorted_by == 'uniqueness':
-            sorting_by_uniq = current_session \
-                .query(Photo) \
-                .filter(Photo.gallery_id == gallery_id) \
-                .order_by(Photo.uniqueness.desc()) \
-                .offset(offset) \
-                .limit(limit) \
-                .all()
-            return sorting_by_uniq
+            gallery_list = gallery_list.order_by(Photo.uniqueness.desc())
         elif sorted_by == 'downloadDate':
-            sorting_by_date = current_session \
-                .query(Photo) \
-                .filter(Photo.gallery_id == gallery_id) \
-                .order_by(Photo.date_of_upload.desc()) \
-                .offset(offset) \
-                .limit(limit) \
-                .all()
-            return sorting_by_date
+            gallery_list = gallery_list.order_by(Photo.date_of_upload.desc())
+
+        sorted_photos = gallery_list \
+            .offset(offset) \
+            .limit(limit) \
+            .all()
+        return sorted_photos

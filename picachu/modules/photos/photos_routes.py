@@ -50,4 +50,4 @@ def add_photo(gallery_id):
     RabbitMqMessagePublisher().publish_message_to_exchange(exchange_name=rabbitmq_photo_for_models_exchange_name,
                                                            message=message_with_photo_parameters)
 
-    return 'OK.'
+    return jsonify({'msg': 'OK'}), HTTPStatus.OK

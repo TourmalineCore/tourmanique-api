@@ -14,7 +14,7 @@ from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQu
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
-from picachu.modules.photos.commands.pagination_params import PaginationParams
+from picachu.modules.photos.commands.sorting_params import SortingParams
 
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
@@ -102,13 +102,13 @@ def get_photos(gallery_id):
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
 
-    sorted_by = request.args.get('sortedBy', type=str)
-    print(sorted_by)
-    if sorted_by != 'uniqueness' and sorted_by != 'downloadDate':
-        return jsonify({'msg': 'Add correct sortedBy'}), HTTPStatus.BAD_REQUEST
-    params = PaginationParams(offset=request.args.get('offset'),
-                              limit=request.args.get('limit'))
-    photos_sorted = GetSortedPhotosQuery().get_sorted_photos(gallery_id, sorted_by, params.offset, params.limit)
+    params = SortingParams(offset=request.args.get('offset'),
+                           limit=request.args.get('limit'),
+                           sorted_by=request.args.get('sortedBy'))
+    photos_sorted = GetSortedPhotosQuery().get_sorted_photos(gallery_id,
+                                                             params.sorted_by,
+                                                             params.offset,
+                                                             params.limit)
     result = []
     try:
         for photo in photos_sorted:
@@ -120,7 +120,8 @@ def get_photos(gallery_id):
                 }
             )
         return jsonify({
-            'list': result, 'totalNumberOfItems': GetPhotoQuery.count_photos(gallery_id)
-        })
+            'list': result,
+            'totalNumberOfItems': GetPhotoQuery.count_photos(gallery_id)
+        }), HTTPStatus.OK
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
