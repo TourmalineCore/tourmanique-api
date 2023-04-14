@@ -1,6 +1,6 @@
 from typing import List
 
-from picachu.domain import Photo
+from picachu.domain import Photo, Gallery
 from picachu.domain.data_access_layer.session import session
 
 
@@ -45,11 +45,12 @@ class GetPhotoQuery:
             current_session.close()
 
     @staticmethod
-    def by_limit() -> List:
+    def by_limit(gallery_id) -> List:
         current_session = session()
         try:
             photos_list = current_session \
                 .query(Photo) \
+                .filter(Photo.gallery_id == gallery_id) \
                 .order_by(Photo.photo_file_path_s3.desc()) \
                 .limit(4) \
                 .all()

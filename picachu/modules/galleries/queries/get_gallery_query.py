@@ -24,18 +24,7 @@ class GetGalleryQuery:
         try:
             galleries_list = current_session \
                 .query(Gallery) \
-                .filter(Gallery.user_id == current_user_id) \
-                .all()
-            return galleries_list
-        finally:
-            current_session.close()
-
-    @classmethod
-    def by_user_id(cls, current_user_id: int) -> List:
-        current_session = session()
-        try:
-            galleries_list = current_session \
-                .query(Gallery) \
+                .filter(Gallery.deleted_at_utc == None) \
                 .filter(Gallery.user_id == current_user_id) \
                 .all()
             return galleries_list

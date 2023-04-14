@@ -3,7 +3,9 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
+from picachu.config import s3_config
 from picachu.domain import Gallery, Photo
+from picachu.helpers.s3_helper import S3Helper
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
@@ -82,9 +84,11 @@ def get_galleries():
     try:
         galleries_list = GetGalleryQuery().by_user_id(current_user_id)
         result = []
-        photos_list = GetPhotoQuery().by_limit()
-        preview = list(map(lambda photo: {'photoPath': photo.photo_file_path_s3}, photos_list))
+
         for gallery in galleries_list:
+            gallery_id = gallery.id
+            photos_list = GetPhotoQuery().by_limit(gallery_id)
+            preview = list(map(lambda photo: {'photoPath': photo.photo_file_path_s3}, photos_list))
             result.append({'id': gallery.id,
                            'name': gallery.name,
                            'photosCount': GetPhotoQuery.count_photos(gallery.id),
