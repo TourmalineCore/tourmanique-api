@@ -22,11 +22,12 @@ galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 @jwt_required()
 def add_gallery():
     current_user_id = get_jwt_identity()
+    gallery_name = request.json.get('name')
     if not IsUserHasAccess().to_service(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
 
     gallery_entity = {
-                      'name': 'new gallery',
+                      'name': gallery_name,
                       'user_id': current_user_id,
                       }
 
