@@ -3,13 +3,14 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from picachu.domain import Gallery, Photo
+from picachu.domain import Gallery
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
+from picachu.modules.galleries.commands.validation_gallery import ValidationGallery
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 
@@ -45,13 +46,13 @@ def add_gallery():
 @jwt_required()
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    new_gallery_name = request.json.get('name')
+    val_param = ValidationGallery(new_gallery_name=request.json.get('name'))
     if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
-        UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
+        UpdateGalleryCommand().rename(val_param.new_gallery_name, gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
 
     except Exception as err:
