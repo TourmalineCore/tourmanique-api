@@ -1,0 +1,66 @@
+name: deploy service to dev k8s
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/ci-to-deploy
+  pull_request:
+
+jobs:
+  build-image:
+    name: Build and push service image  
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: Build and push image
+        run: |
+          docker login ghcr.io -u ${{ secrets.GH_REGISTRY_LOGIN }} -p ${{ secrets.GH_REGISTRY_PASSWORD }}
+          docker build -t ghcr.io/tourmalinecore/picachu/api:latest -t ghcr.io/tourmalinecore/picachu/api:${{ github.sha }} -f ./Dockerfile .
+          docker push ghcr.io/tourmalinecore/picachu/api:latest
+          docker push ghcr.io/tourmalinecore/picachu/api:${{ github.sha }}
+
+  deploy-to-dev-k8s:
+    needs: build-image
+    name: Deploy service to k8s for development environment  
+    if: github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: Deploy
+        uses: WyriHaximus/github-action-helm3@v3
+        with:
+          exec: |
+            RELEASE_NAME=api
+            helm repo add bitnami https://charts.bitnami.com/bitnami
+            helm upgrade --install --namespace dev-picachu --create-namespace --values ./ci/values-custom.yaml \
+            --set "image.pullSecrets={${RELEASE_NAME}-python-docker-secret}" \
+            --set "ingress.hostname=picachu.dev.tourmalinecore.com" \
+            --set "image.pullCredentials.username=${{ secrets.GH_REGISTRY_LOGIN }}" \
+            --set "image.pullCredentials.password=${{ secrets.GH_REGISTRY_PASSWORD }}" \
+            --set "image.tag=${{ github.sha }}" \
+            --set "extraConfigMapEnvVars.FLASK_ENV=${{ vars.DEV_FLASK_ENV }}" \
+            --set "extraConfigMapEnvVars.FLASK_RUN_HOST=${{ vars.DEV_FLASK_RUN_HOST }}" \
+            --set "extraConfigMapEnvVars.FLASK_RUN_PORT=${{ vars.DEV_FLASK_RUN_PORT }}" \
+            --set "extraConfigMapEnvVars.FLASK_APP=${{ vars.DEV_FLASK_APP }}" \
+            --set "extraSecretEnvVars.POSTGRES_HOST=${{ secrets.DEV_POSTGRES_HOST }}" \
+            --set "extraSecretEnvVars.POSTGRES_DB=${{ secrets.DEV_POSTGRES_DB }}" \
+            --set "extraSecretEnvVars.POSTGRES_USER=${{ secrets.DEV_POSTGRES_USER }}" \
+            --set "extraSecretEnvVars.POSTGRES_PASSWORD=${{ secrets.DEV_POSTGRES_PASSWORD }}" \
+            --set "extraSecretEnvVars.RABBITMQ_HOST=${{ secrets.DEV_RABBITMQ_HOST }}" \
+            --set "extraSecretEnvVars.RABBITMQ_DEFAULT_USER=${{ secrets.RABBITMQ_DEFAULT_USER }}" \
+            --set "extraSecretEnvVars.RABBITMQ_DEFAULT_PASS=${{ secrets.DEV_RABBITMQ_DEFAULT_PASS }}" \
+            --set "extraSecretEnvVars.RABBITMQ_PHOTO_FOR_MODELS_EXCHANGE_NAME=${{ secrets.DEV_RABBITMQ_PHOTO_FOR_MODELS_EXCHANGE_NAME }}" \
+            --set "extraSecretEnvVars.S3_ENDPOINT=${{ secrets.DEV_S3_ENDPOINT }}" \
+            --set "extraSecretEnvVars.S3_ACCESS_KEY_ID=${{ secrets.DEV_S3_ACCESS_KEY_ID }}" \
+            --set "extraSecretEnvVars.S3_SECRET_ACCESS_KEY=${{ secrets.DEV_S3_SECRET_ACCESS_KEY }}" \
+            --set "extraSecretEnvVars.S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" \
+            --set "extraSecretEnvVars.S3_PREFIX=${{ secrets.DEV_S3_PREFIX }}" \
+            --set "extraSecretEnvVars.S3_USE_SSL=${{ secrets.DEV_S3_USE_SSL }}" \
+            --set "extraSecretEnvVars.MINIO_ROOT_USER=${{ secrets.DEV_MINIO_ROOT_USER }}" \
+            --set "extraSecretEnvVars.MINIO_ROOT_PASSWORD=${{ secrets.DEV_MINIO_ROOT_PASSWORD }}" \
+            "${RELEASE_NAME}" \
+            bitnami/nginx
+          kubeconfig: "${{ secrets.DEV_KUBECONFIG }}"
