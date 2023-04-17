@@ -1,10 +1,9 @@
-import os
-
 from flask import Flask, Blueprint
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import upgrade as _upgrade
 
+from picachu.config.jwt_config import jwt_secret_token
 from picachu.domain.data_access_layer.build_connection_string import build_connection_string
 from picachu.domain.data_access_layer.db import db, migrate
 from picachu.modules.auth.auth_routes import auth_blueprint
@@ -15,7 +14,7 @@ from picachu.modules.photos.photos_routes import photos_blueprint
 def create_app():
     """Application factory, used to create application"""
     app = Flask(__name__)
-    app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
+    app.config["JWT_SECRET_KEY"] = jwt_secret_token
     jwt = JWTManager(app)
 
     app.config.from_object('picachu.config.flask_config')
