@@ -46,7 +46,7 @@ def add_gallery():
 @jwt_required()
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    validation_param = ValidationGalleryName(gallery_name=request.json.get('name'))
+    validation_param = ValidationGalleryName(gallery_name=request.json.get('newName'))
     if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):

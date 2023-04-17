@@ -6,6 +6,7 @@ class ValidationGalleryName(BaseModel):
 
     @validator('gallery_name')
     def validate_gallery_name(cls, gallery_name: str) -> str:
-        if gallery_name.strip() == '':
+        gallery_name = gallery_name.strip()
+        if gallery_name == '':
             raise ValueError('Gallery name must not be empty.')
-        return gallery_name.strip()
+        return gallery_name
