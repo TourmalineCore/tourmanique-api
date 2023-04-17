@@ -10,7 +10,7 @@ from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
-from picachu.modules.galleries.commands.validation_gallery import ValidationGallery
+from picachu.modules.galleries.commands.validation_gallery_name import ValidationGalleryName
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 
@@ -23,12 +23,12 @@ galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 @jwt_required()
 def add_gallery():
     current_user_id = get_jwt_identity()
-    gallery_name = request.json.get('name')
+    validation_param = ValidationGalleryName(gallery_name=request.json.get('name'))
     if not IsUserHasAccess().to_service(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
 
     gallery_entity = {
-                      'name': gallery_name,
+                      'name': validation_param.gallery_name,
                       'user_id': current_user_id,
                       }
 
@@ -46,13 +46,13 @@ def add_gallery():
 @jwt_required()
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    val_param = ValidationGallery(new_gallery_name=request.json.get('name'))
+    validation_param = ValidationGalleryName(gallery_name=request.json.get('name'))
     if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
-        UpdateGalleryCommand().rename(val_param.new_gallery_name, gallery_id)
+        UpdateGalleryCommand().rename(validation_param.gallery_name, gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
 
     except Exception as err:
