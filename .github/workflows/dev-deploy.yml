@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - feature/ci-to-deploy
   pull_request:
 
 jobs:
