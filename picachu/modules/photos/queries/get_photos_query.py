@@ -45,7 +45,7 @@ class GetPhotoQuery:
             current_session.close()
 
     @staticmethod
-    def by_limit(gallery_id) -> List:
+    def get_photos_list(gallery_id) -> List[Photo]:
         current_session = session()
         try:
             photos_list = current_session \

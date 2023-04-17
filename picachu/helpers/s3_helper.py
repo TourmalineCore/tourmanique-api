@@ -60,7 +60,7 @@ class S3Helper(metaclass=Singleton):
         result_path_in_bucket = append_prefix(path=file_path_in_bucket, prefix=s3_prefix)
 
         return build_object_url(
-            endpoint_url=s3_config.s3_endpoint,
+            endpoint_url=s3_config.s3_external,
             bucket=s3_bucket_name,
             path=result_path_in_bucket,
         )

@@ -85,14 +85,14 @@ def get_galleries():
         result = []
 
         for gallery in galleries_list:
-            gallery_id = gallery.id
-            photos_list = GetPhotoQuery().by_limit(gallery_id)
-            preview = list(map(lambda photo: {'photoPath': S3Helper.s3_get_full_file_url(photo.photo_file_path_s3)},
-                               photos_list))
+            photos_list = GetPhotoQuery().get_photos_list(gallery.id)
+            photos_links = list(map(lambda photo: {
+                'photoPath': S3Helper().s3_get_full_file_url(photo.photo_file_path_s3)
+            }, photos_list))
             result.append({'id': gallery.id,
                            'name': gallery.name,
                            'photosCount': GetPhotoQuery.count_photos(gallery.id),
-                           'previewPhotos': preview
+                           'previewPhotos': photos_links
                            })
         return jsonify(result), HTTPStatus.OK
     except Exception as err:
