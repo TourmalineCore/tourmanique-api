@@ -2,6 +2,8 @@ import datetime
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
+from picachu.config.auth_config import auth_username, auth_password
+from http import HTTPStatus
 
 USER_ID = 1
 
@@ -13,8 +15,8 @@ def log_in():
     user_data = request.json.get('login')
     password_data = request.json.get('password')
 
-    if user_data != 'admin' or password_data != 'admin':
-        return jsonify({'msg': 'Bad username or password'}), 401
+    if user_data != auth_username or password_data != auth_password:
+        return jsonify({'msg': 'Bad username or password'}), HTTPStatus.UNAUTHORIZED
 
     access_token = create_access_token(identity=USER_ID,
                                        expires_delta=datetime.timedelta(days=30))
