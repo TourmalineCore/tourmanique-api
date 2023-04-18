@@ -10,7 +10,7 @@ from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
-from picachu.modules.galleries.commands.validation_gallery_name import ValidationGalleryName
+from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 
