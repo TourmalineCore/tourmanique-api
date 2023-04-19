@@ -13,6 +13,10 @@ class Photo(db.Model):
     gallery_id = db.Column(db.BigInteger, db.ForeignKey('galleries.id'), nullable=False)
     date_of_upload = db.Column(DateTime, nullable=False)
 
+    color_uniqueness = db.Column(db.SmallInteger, nullable=True)
+    tag_uniqueness = db.Column(db.SmallInteger, nullable=True)
+    overall_uniqueness = db.Column(db.SmallInteger, nullable=True)
+
     galleries = db.relationship('Gallery', back_populates='photos')
 
     def __repr__(self):
