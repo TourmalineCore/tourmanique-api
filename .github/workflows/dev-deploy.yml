@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - develop
+      - feature/#85zrxa6fq-change-auth-default-creds
+  pull_request:
 
 jobs:
   build-image:
@@ -59,6 +61,8 @@ jobs:
             --set "extraSecretEnvVars.S3_USE_SSL=${{ secrets.DEV_S3_USE_SSL }}" \
             --set "extraSecretEnvVars.MINIO_ROOT_USER=${{ secrets.DEV_MINIO_ROOT_USER }}" \
             --set "extraSecretEnvVars.MINIO_ROOT_PASSWORD=${{ secrets.DEV_MINIO_ROOT_PASSWORD }}" \
+            --set "extraSecretEnvVars.AUTH_USERNAME=${{ secrets.DEV_AUTH_USERNAME }}" \
+            --set "extraSecretEnvVars.AUTH_PASSWORD=${{ secrets.DEV_AUTH_PASSWORD }}" \
             "${RELEASE_NAME}" \
             bitnami/nginx
           kubeconfig: "${{ secrets.DEV_KUBECONFIG }}"
