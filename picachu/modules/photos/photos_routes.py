@@ -1,4 +1,5 @@
 import io
+import random
 from datetime import datetime
 from http import HTTPStatus
 
@@ -38,10 +39,16 @@ def add_photo(gallery_id):
     )
 
     photo_hash = str(imagehash.average_hash(Image.open(io.BytesIO(photo_bytes))))
+    color_uniqueness = random.randint(0, 100)
+    tag_uniqueness = random.randint(0, 100)
+
     photo_entity = Photo(photo_file_path_s3=photo_s3_path,
                          hash=photo_hash,
                          gallery_id=gallery_id,
                          date_of_upload=datetime.utcnow(),
+                         color_uniqueness=color_uniqueness,
+                         tag_uniqueness=tag_uniqueness,
+                         overall_uniqueness=(color_uniqueness + tag_uniqueness) / 2,
                          )
     photo_id = NewPhotoCommand().create(photo_entity)
 
