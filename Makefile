@@ -100,7 +100,7 @@ run: ## runs the api locally via **docker**
 
 .PHONY: test
 test: ## runs unit tests via **docker**
-	docker compose -f docker-compose.yml -f docker-compose.local.yml run --rm --no-deps picachu-api poetry run pytest -v
+	docker compose run --rm --no-deps picachu-api poetry run pytest -v
 
 .PHONY: create-migration
 create-migration: ## create migration with <migration_name> via **docker**
