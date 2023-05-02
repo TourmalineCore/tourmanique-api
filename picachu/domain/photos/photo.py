@@ -1,11 +1,7 @@
 from picachu.domain.data_access_layer.db import db
 
-from sqlalchemy import CheckConstraint, UniqueConstraint
-
 from datetime import datetime
 from sqlalchemy import DateTime
-
-from sqlalchemy import CheckConstraint, UniqueConstraint
 
 
 class Photo(db.Model):
@@ -15,7 +11,11 @@ class Photo(db.Model):
     hash = db.Column(db.String(2048), nullable=True)
     photo_file_path_s3 = db.Column(db.String(2048), nullable=False)
     gallery_id = db.Column(db.BigInteger, db.ForeignKey('galleries.id'), nullable=False)
-    date_of_upload = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+    date_of_upload = db.Column(DateTime, nullable=False)
+
+    color_uniqueness = db.Column(db.SmallInteger, nullable=True)
+    tag_uniqueness = db.Column(db.SmallInteger, nullable=True)
+    overall_uniqueness = db.Column(db.SmallInteger, nullable=True)
 
     galleries = db.relationship('Gallery', back_populates='photos')
 

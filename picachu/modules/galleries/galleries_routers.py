@@ -8,9 +8,9 @@ from picachu.domain import Gallery
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 
+from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
-from picachu.modules.galleries.queries.get_galleries_query import GetGalleriesQuery
 
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
@@ -19,6 +19,9 @@ from picachu.modules.photos.commands.sorting_params import SortingParams
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
 
+from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
+
+
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 
 
@@ -26,11 +29,12 @@ galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 @jwt_required()
 def add_gallery():
     current_user_id = get_jwt_identity()
+    validation_param = ValidationGalleryName(gallery_name=request.json.get('name'))
     if not IsUserHasAccess().to_service(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
 
     gallery_entity = {
-                      'name': 'new gallery',
+                      'name': validation_param.gallery_name,
                       'user_id': current_user_id,
                       }
 
@@ -44,17 +48,17 @@ def add_gallery():
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
 
 
-@galleries_blueprint.route('/<int:gallery_id>/update-name', methods=['PUT'])
+@galleries_blueprint.route('/<int:gallery_id>/rename', methods=['POST'])
 @jwt_required()
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    new_gallery_name = request.json.get('name')
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    validation_param = ValidationGalleryName(gallery_name=request.json.get('newName'))
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
-        UpdateGalleryCommand().rename(new_gallery_name, gallery_id)
+        UpdateGalleryCommand().rename(validation_param.gallery_name, gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
 
     except Exception as err:
@@ -65,13 +69,13 @@ def rename_gallery(gallery_id):
 @jwt_required()
 def delete_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
-        return jsonify({'msg': 'Not Found'}), HTTPStatus.NotFound
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     try:
-        DeleteGalleryQuery().delete(gallery_id)
-        return jsonify({'msg': 'OK'}), HTTPStatus.OK
+        DeleteGalleryCommand().delete(gallery_id)
+        return jsonify(gallery_id), HTTPStatus.OK
 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
@@ -81,14 +85,20 @@ def delete_gallery(gallery_id):
 @jwt_required()
 def get_galleries():
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id):
+    if not IsUserHasAccess().to_service(current_user_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
-        list_galleries = GetGalleriesQuery().get(current_user_id)
+        galleries_list = GetGalleryQuery().by_user_id(current_user_id)
         result = []
-        for gallery in list_galleries:
-            result.append({'id': gallery.id, 'name': gallery.name, 'photosCount': GetPhotoQuery.count_photos(gallery.id)})
-        return result
+        photos_list = GetPhotoQuery().by_limit()
+        preview = list(map(lambda photo: {'photoPath': photo.photo_file_path_s3}, photos_list))
+        for gallery in galleries_list:
+            result.append({'id': gallery.id,
+                           'name': gallery.name,
+                           'photosCount': GetPhotoQuery.count_photos(gallery.id),
+                           'previewPhotos': preview
+                           })
+        return jsonify(result), HTTPStatus.OK
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
 
