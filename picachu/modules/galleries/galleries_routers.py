@@ -102,9 +102,9 @@ def get_galleries():
 @jwt_required()
 def restore_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    if not GetGalleryQuery.by_id(gallery_id):
+    if not GetGalleryQuery().by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
-    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
         RestoreGalleryCommand().restore(gallery_id)
