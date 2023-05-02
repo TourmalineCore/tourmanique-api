@@ -16,8 +16,8 @@ class GetSortedPhotosQuery:
             .query(Photo) \
             .filter(Photo.gallery_id == gallery_id)
 
-        if sorted_by == 'uniqueness':
-            gallery_list = gallery_list.order_by(Photo.uniqueness.desc())
+        if sorted_by == 'overallUniqueness':
+            gallery_list = gallery_list.order_by(Photo.overall_uniqueness.desc())
         elif sorted_by == 'downloadDate':
             gallery_list = gallery_list.order_by(Photo.date_of_upload.desc())
 

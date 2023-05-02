@@ -20,6 +20,6 @@ class SortingParams(BaseModel):
 
     @validator('sorted_by')
     def validate_sorted_by(cls, sorted_by):
-        if sorted_by not in ['uniqueness', 'downloadDate']:
+        if sorted_by not in ['overallUniqueness', 'downloadDate']:
             raise ValueError('Incorrect sortedBy value.')
         return sorted_by

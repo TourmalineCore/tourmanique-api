@@ -11,15 +11,12 @@ from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
-
 from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
-from picachu.modules.galleries.queries.delete_gallery_query import DeleteGalleryQuery
-from picachu.modules.photos.commands.sorting_params import SortingParams
+from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
 
+from picachu.modules.photos.commands.sorting_params import SortingParams
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
 from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
-
-from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
 
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
@@ -107,10 +104,10 @@ def get_galleries():
 @jwt_required()
 def get_photos(gallery_id):
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
-        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
-    if not GetGalleryQuery.by_id(gallery_id):
+    if not GetGalleryQuery().by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
 
     params = SortingParams(offset=request.args.get('offset'),
                            limit=request.args.get('limit'),
@@ -125,13 +122,13 @@ def get_photos(gallery_id):
             result.append(
                 {
                     'id': photo.id,
-                    'photo_file_path_s3': photo.photo_file_path_s3,
-                    'uniqueness': random.randint(0, 100)
+                    'photoPath': photo.photo_file_path_s3,
+                    'uniqueness': photo.overall_uniqueness,
                 }
             )
         return jsonify({
             'list': result,
-            'totalNumberOfItems': GetPhotoQuery.count_photos(gallery_id)
+            'totalNumberOfItems': GetPhotoQuery().count_photos(gallery_id)
         }), HTTPStatus.OK
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
