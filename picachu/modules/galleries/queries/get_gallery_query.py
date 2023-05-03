@@ -26,6 +26,7 @@ class GetGalleryQuery:
         try:
             galleries_list = current_session \
                 .query(Gallery) \
+                .filter(Gallery.deleted_at_utc == None) \
                 .filter(Gallery.user_id == current_user_id) \
                 .all()
             return galleries_list
