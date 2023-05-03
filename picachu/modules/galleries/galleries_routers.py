@@ -85,7 +85,7 @@ def get_galleries():
         result = []
 
         for gallery in galleries_list:
-            photos_list = GetPhotoQuery().get_photos_list(gallery.id)
+            photos_list = GetPhotoQuery().get_photos_list_for_gallery_preview(gallery.id)
             photos_links = list(map(lambda photo: {
                 'photoPath': S3Helper().s3_get_full_file_url(photo.photo_file_path_s3)
             }, photos_list))

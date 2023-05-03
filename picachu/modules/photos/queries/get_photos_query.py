@@ -45,13 +45,13 @@ class GetPhotoQuery:
             current_session.close()
 
     @staticmethod
-    def get_photos_list(gallery_id) -> List[Photo]:
+    def get_photos_list_for_gallery_preview(gallery_id) -> List[Photo]:
         current_session = session()
         try:
             photos_list = current_session \
                 .query(Photo) \
                 .filter(Photo.gallery_id == gallery_id) \
-                .order_by(Photo.photo_file_path_s3.desc()) \
+                .order_by(Photo.date_of_upload.desc()) \
                 .limit(4) \
                 .all()
             return photos_list
