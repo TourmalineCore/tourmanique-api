@@ -42,7 +42,7 @@ def add_gallery():
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
 
 
-@galleries_blueprint.route('/<int:gallery_id>/rename', methods=['POST'])
+@galleries_blueprint.route('/<int:gallery_id>/rename/', methods=['POST'])
 @jwt_required()
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
