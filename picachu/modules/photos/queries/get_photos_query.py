@@ -45,7 +45,7 @@ class GetPhotoQuery:
             current_session.close()
 
     @staticmethod
-    def get_photos_list_for_gallery_preview(gallery_id) -> List[Photo]:
+    def for_gallery_preview(gallery_id) -> List[Photo]:
         current_session = session()
         try:
             photos_list = current_session \
