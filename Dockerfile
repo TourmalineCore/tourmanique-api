@@ -8,6 +8,10 @@ ENV PYTHONFAULTHANDLER 1
 ENV PYTHONUNBUFFERED 1
 
 RUN python -m pip install --upgrade pip
+RUN apt update && apt-get install -y postgresql-server-dev-13 gcc python3-dev
+RUN apt install libpq-dev --yes
+
+RUN export PATH=/usr/lib/postgresql/13/bin/:$PATH
 
 ENV POETRY_VERSION=1.2.2
 ENV POETRY_HOME='/opt/poetry'
