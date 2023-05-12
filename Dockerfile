@@ -8,8 +8,10 @@ ENV PYTHONFAULTHANDLER 1
 ENV PYTHONUNBUFFERED 1
 
 RUN python -m pip install --upgrade pip
-RUN apt update && apt-get install -y postgresql-server-dev-13 gcc python3-dev
+RUN apt update && apt-get install -y postgresql-server-dev-13 gcc python3-dev postgresql postgresql-contrib libpq5
 RUN apt install libpq-dev --yes
+
+RUN apt-get install sudo
 
 RUN export PATH=/usr/lib/postgresql/13/bin/:$PATH
 
@@ -21,6 +23,7 @@ ENV PYTHONPATH="${PYTHONPATH}:/app-workspace"
 
 WORKDIR /app-workspace
 COPY . .
+RUN ["chmod", "+x", "pg_ctl.sh"]
 
 RUN python -m venv $POETRY_VENV \
     && $POETRY_VENV/bin/pip install -U pip setuptools \
