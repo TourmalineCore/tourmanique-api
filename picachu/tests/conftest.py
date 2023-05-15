@@ -34,12 +34,12 @@ def flask_app():
 
 
 @pytest.fixture
-def setup_database(flask_app, test_db):
+def setup_database(test_db):
     def dbcreator():
         return test_db.cursor().connection
 
     engine = create_engine("postgresql+psycopg2://", creator=dbcreator)
-    db.metadata.create_all(engine)
+    test_db.metadata.create_all(engine)
 
     return engine
 
