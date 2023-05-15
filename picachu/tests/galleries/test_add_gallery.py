@@ -7,7 +7,7 @@ from flask import url_for
 @pytest.mark.parametrize(
     'name',
     [
-        ('Sliv Instasamki'),
+        ('Test Gallery'),
         ('    Admin    '),
     ]
     )
@@ -53,7 +53,7 @@ def test_add_gallery_with_incorrect_token(flask_app):
     }
 
     data = {
-        'name': 'Golye Znamenitosti',
+        'name': 'Test Gallery2',
     }
 
     response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
@@ -67,7 +67,7 @@ def test_add_gallery_with_empty_token(flask_app):
     }
 
     data = {
-        'name': 'Golye Znamenitosti',
+        'name': 'Test Gallery3',
     }
 
     response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
