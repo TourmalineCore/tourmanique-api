@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from picachu.domain import Gallery, Photo
+from picachu.domain import Gallery
 from picachu.domain.data_access_layer.session import session
 
 
@@ -14,7 +14,9 @@ class GetGalleryQuery:
         try:
             return current_session \
                 .query(Gallery) \
-                .get(gallery_id)
+                .filter(Gallery.deleted_at_utc == None) \
+                .filter(Gallery.id == gallery_id) \
+                .one_or_none()
         finally:
             current_session.close()
 
