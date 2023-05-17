@@ -1,4 +1,3 @@
-from picachu.domain import Gallery
 from picachu.domain.data_access_layer.session import session
 from datetime import datetime
 
