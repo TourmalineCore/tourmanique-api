@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
 
-from picachu.domain.data_access_layer.build_connection_string import build_connection_string
+from picachu.domain.data_access_layer.build_connection_string import connection_string_builder
 
 
 def add_engine_pidguard(engine):
@@ -39,7 +39,7 @@ def add_engine_pidguard(engine):
 
 
 app_db_engine = create_engine(
-    build_connection_string(),
+    connection_string_builder.get_connection_string(),
     isolation_level='READ COMMITTED',
     pool_pre_ping=True,
 )

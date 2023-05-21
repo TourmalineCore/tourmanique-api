@@ -1,4 +1,4 @@
 import os
 
-ENV = os.getenv('FLASK_ENV')
-DEBUG = ENV == 'development'
+env = os.getenv('FLASK_ENV')
+debug = env == 'development'

@@ -23,7 +23,6 @@ ENV PYTHONPATH="${PYTHONPATH}:/app-workspace"
 
 WORKDIR /app-workspace
 COPY . .
-RUN ["chmod", "+x", "pg_ctl.sh"]
 
 RUN python -m venv $POETRY_VENV \
     && $POETRY_VENV/bin/pip install -U pip setuptools \
