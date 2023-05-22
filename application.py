@@ -21,6 +21,8 @@ def create_app(config=ConfigProvider):
     app.url_map.strict_slashes = False
     jwt = JWTManager(app)
 
+    #ToDo: call connection_string_builder.build_connection_string depending on which config
+
     add_engine_pidguard(app_db_engine)
 
     # allow to call the api from any origin for now

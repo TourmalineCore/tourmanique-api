@@ -17,14 +17,10 @@ class ConfigProvider:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
-class TestConfigProvider:
-    ENV = env
-    DEBUG = debug
-    JWT_SECRET_KEY = jwt_secret_key
+class TestConfigProvider(ConfigProvider):
     SQLALCHEMY_DATABASE_URI = connection_string_builder.build_connection_string(
         database='test_db',
         host='test-db',
         password='postgres',
         username='postgres',
     )
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
