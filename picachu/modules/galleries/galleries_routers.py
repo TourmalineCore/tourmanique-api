@@ -6,8 +6,9 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from picachu.domain import Gallery
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
-
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
+
+from picachu.modules.galleries.commands.restore_gallery_command import RestoreGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
 from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
@@ -46,15 +47,15 @@ def add_gallery():
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
 
 
-@galleries_blueprint.route('/<int:gallery_id>/rename', methods=['POST'])
+@galleries_blueprint.route('/<int:gallery_id>/rename/', methods=['POST'])
 @jwt_required()
 def rename_gallery(gallery_id):
     current_user_id = get_jwt_identity()
     validation_param = ValidationGalleryName(gallery_name=request.json.get('newName'))
-    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
-        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
         UpdateGalleryCommand().rename(validation_param.gallery_name, gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
@@ -67,10 +68,10 @@ def rename_gallery(gallery_id):
 @jwt_required()
 def delete_gallery(gallery_id):
     current_user_id = get_jwt_identity()
-    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
-        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     if not GetGalleryQuery.by_id(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess.to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
     try:
         DeleteGalleryCommand().delete(gallery_id)
         return jsonify(gallery_id), HTTPStatus.OK
@@ -97,5 +98,21 @@ def get_galleries():
                            'previewPhotos': preview
                            })
         return jsonify(result), HTTPStatus.OK
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+@galleries_blueprint.route('/<int:gallery_id>/restore/', methods=['POST'])
+@jwt_required()
+def restore_gallery(gallery_id):
+    current_user_id = get_jwt_identity()
+    if not GetGalleryQuery().by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+    try:
+        RestoreGalleryCommand().restore(gallery_id)
+        return jsonify(gallery_id), HTTPStatus.OK
+
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
