@@ -12,6 +12,9 @@
 - [How to validate the API contract](#api_contract)
 - [Steps of API testing](#api_steps)
 - [What HTTP status codes we expect in response?](#status_codes)
+- [Backend testing guide and examples](#guide)
+  - [Where do we store the tests?](#tests_location)
+  - [What does a typical test case and its code look like?](#tests_example)
 - [All the HTTP status codes in details for better testing](#status_codes_details)
 - [Executing Tests](#execute)
 
@@ -109,6 +112,56 @@ In general, the status codes of API endpoints of the PiCachu project:
 - failed securiti scenarios - **401, 422**
 - negative scenarios with errors in the contract scheme - **400, 500** 
 
+## Backend testing guide and examples
+<a name="guide"></a> 
+
+### Where do we store the tests?<a name="tests_location"></a> 
+In our project, the tests of the backend part are stored in the folder: ```picachu-api/picachu/tests/{*page_name*}``` and their name is typed with an underscore with ***test*** in the beginning:\
+```picachu-api/picachu/tests/{*page_name*}/test_{*page_name*}.py```
+For example, the ***test path of the authentication page*** is here: 
+```picachu-api/picachu/tests/auth/test_auth.py``` \
+The tests folder contains inside folders whose names tell you the specific pages.
+
+### What does a typical test case and its code look like? <a name="tests_example"></a> 
+1. For example, here's a test that checks the response status code for an attempt to create a gallery with an empty authentication token
+```
+def test_add_gallery_with_empty_token(flask_app):
+    headers = {
+        "Authorization": f"Bearer ''"
+    }
+
+    data = {
+        'name': 'Test Gallery3',
+    }
+```
+- In the body of the function, be sure to declare the request header and pass in the authentication value by pattern
+- In the function body declare the variable data and declare there all the variables according to the contract scheme for the endpoint, pass valid values to the variables to comply with the atomicity principle (in this test case we manipulate only with the request header)
+
+
+2. Then we declare a ```response``` variable and set a request method using a **flask**, passing in our ```data``` (in **json** format) and ```headers```
+And then we use ```assert``` to make sure that the status code of the server's response really is ***UNPROCESSABLE ENTITY***
+```
+response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+```
+3. And there is full version of the test function:
+```
+def test_add_gallery_with_empty_token(flask_app):
+    headers = {
+        "Authorization": f"Bearer ''"
+    }
+
+    data = {
+        'name': 'Test Gallery3',
+    }
+
+    response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+```
+
+
 ## All the HTTP status codes in details for better testing<a name="status_codes_details"></a> 
 Below are the endpoints and status codes for each scenario for those who were not particularly involved in development and for quality testing on the specification and response status code requirements
 
@@ -176,9 +229,6 @@ make test
 ```
 If you want to execute integration tests, run this command in the terminal:
 ```
-make test (--integration???)
+make test --integration
 ```
-To open PyTest GUI and check the steps of the tests and test caises overall, run this command in the terminal:
-```
-???
-```
+
