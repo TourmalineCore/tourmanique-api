@@ -5,6 +5,8 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from picachu.domain import Gallery
+from picachu.helpers.s3_helper import S3Helper
+
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
@@ -88,13 +90,16 @@ def get_galleries():
     try:
         galleries_list = GetGalleryQuery().by_user_id(current_user_id)
         result = []
-        photos_list = GetPhotoQuery().by_limit()
-        preview = list(map(lambda photo: {'photoPath': photo.photo_file_path_s3}, photos_list))
+
         for gallery in galleries_list:
+            photos_list = GetPhotoQuery().for_gallery_preview(gallery.id)
+            photos_links = list(map(lambda photo: {
+                'photoPath': S3Helper().s3_get_full_file_url(photo.photo_file_path_s3)
+            }, photos_list))
             result.append({'id': gallery.id,
                            'name': gallery.name,
                            'photosCount': GetPhotoQuery.count_photos(gallery.id),
-                           'previewPhotos': preview
+                           'previewPhotos': photos_links
                            })
         return jsonify(result), HTTPStatus.OK
     except Exception as err:
