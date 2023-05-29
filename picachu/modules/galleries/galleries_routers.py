@@ -1,9 +1,12 @@
 from http import HTTPStatus
+import random
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from picachu.domain import Gallery
+from picachu.helpers.s3_helper import S3Helper
+
 
 from picachu.modules.auth.is_user_has_access import IsUserHasAccess
 from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
@@ -11,11 +14,13 @@ from picachu.modules.galleries.commands.delete_gallery_command import DeleteGall
 from picachu.modules.galleries.commands.restore_gallery_command import RestoreGalleryCommand
 from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
 from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
+from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
 
-from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
-
+from picachu.modules.photos.commands.sorting_params import SortingParams
 from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
+from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
+
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 
@@ -85,13 +90,16 @@ def get_galleries():
     try:
         galleries_list = GetGalleryQuery().by_user_id(current_user_id)
         result = []
-        photos_list = GetPhotoQuery().by_limit()
-        preview = list(map(lambda photo: {'photoPath': photo.photo_file_path_s3}, photos_list))
+
         for gallery in galleries_list:
+            photos_list = GetPhotoQuery().for_gallery_preview(gallery.id)
+            photos_links = list(map(lambda photo: {
+                'photoPath': S3Helper().s3_get_full_file_url(photo.photo_file_path_s3)
+            }, photos_list))
             result.append({'id': gallery.id,
                            'name': gallery.name,
                            'photosCount': GetPhotoQuery.count_photos(gallery.id),
-                           'previewPhotos': preview
+                           'previewPhotos': photos_links
                            })
         return jsonify(result), HTTPStatus.OK
     except Exception as err:
@@ -106,9 +114,45 @@ def restore_gallery(gallery_id):
         return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
     if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+
     try:
         RestoreGalleryCommand().restore(gallery_id)
         return jsonify({'msg': 'OK'}), HTTPStatus.OK
 
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+
+@galleries_blueprint.route('/<int:gallery_id>/photos', methods=['GET'])
+@jwt_required()
+def get_photos(gallery_id):
+    current_user_id = get_jwt_identity()
+    if not GetGalleryQuery().by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+      
+    params = SortingParams(offset=request.args.get('offset'),
+                           limit=request.args.get('limit'),
+                           sorted_by=request.args.get('sortedBy'))
+    photos_sorted = GetSortedPhotosQuery().get_sorted_photos(gallery_id,
+                                                             params.sorted_by,
+                                                             params.offset,
+                                                             params.limit)
+    result = []
+    try:
+        for photo in photos_sorted:
+            result.append(
+                {
+                    'id': photo.id,
+                    'photoPath': photo.photo_file_path_s3,
+                    'uniqueness': photo.overall_uniqueness,
+                }
+            )
+        return jsonify({
+            'list': result,
+            'totalNumberOfItems': GetPhotoQuery().count_photos(gallery_id)
+        }), HTTPStatus.OK 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
