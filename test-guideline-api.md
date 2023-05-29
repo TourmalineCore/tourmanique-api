@@ -16,7 +16,7 @@
   - [Where do we store the tests?](#tests_location)
   - [What does a typical test case and its code look like?](#tests_example)
 - [All the HTTP status codes in details for better testing](#status_codes_details)
-- [Code coverage](#coverage)
+- [Tests coverage](#coverage)
 - [Executing Tests](#execute)
 
 ## Functions of PiCachu API <a name="api_func"></a> 
