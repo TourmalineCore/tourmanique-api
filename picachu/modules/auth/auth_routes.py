@@ -24,5 +24,5 @@ def log_in():
     return jsonify({
         "accessToken": {
             "value": access_token
-        },
-    })
+        }
+    }), HTTPStatus.ACCEPTED
