@@ -38,8 +38,19 @@ def add_engine_pidguard(engine):
             )
 
 
-app_db_engine = create_engine(
-    connection_string_builder.get_connection_string(),
-    isolation_level='READ COMMITTED',
-    pool_pre_ping=True,
-)
+class DBEngineProvider:
+    def __init__(self):
+        self.app_db_engine = create_engine(
+            connection_string_builder.get_connection_string(),
+            isolation_level='READ COMMITTED',
+            pool_pre_ping=True,
+        )
+
+    def set_engine(self, engine):
+        self.app_db_engine = engine
+
+    def get_engine(self):
+        return self.app_db_engine
+
+
+app_db_engine_provider = DBEngineProvider()

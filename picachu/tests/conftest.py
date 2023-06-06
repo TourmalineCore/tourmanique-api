@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker
 
 from application import create_app
@@ -8,6 +8,7 @@ import pytest
 
 from picachu.config.config_provider import TestConfigProvider
 from picachu.domain import Gallery
+from picachu.domain.data_access_layer.db import db
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -48,6 +49,9 @@ def db_session(flask_app, database_uri):
 
 @pytest.fixture
 def db_with_test_data(db_session):
+    galleries_id = ['1',
+                    '2',
+                    '3']
     galleries_names = ['gallery_1',
                        'gallery_2',
                        'gallery_3']
@@ -56,8 +60,15 @@ def db_with_test_data(db_session):
                          '2']
 
     with db_session() as session:
-        for name, user_id in zip(galleries_names, galleries_user_id):
-            session.add(Gallery(user_id=user_id,
+        session.execute(delete(Gallery))
+        session.commit()
+
+        logger.info("Deleted test data from the database.")
+
+        for galleries_id, name, user_id in zip(galleries_id, galleries_names, galleries_user_id):
+            session.add(Gallery(id=galleries_id,
+                                user_id=user_id,
                                 name=name))
         session.commit()
-    logger.info("Added test data to the database.")
+
+        logger.info("Added test data to the database.")

@@ -2,14 +2,14 @@ from flask import Flask, Blueprint
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import upgrade as _upgrade
+from sqlalchemy import create_engine
 
 from picachu.config.config_provider import ConfigProvider
 from picachu.domain.data_access_layer.db import db, migrate
-from picachu.domain.data_access_layer.engine import add_engine_pidguard, app_db_engine
+from picachu.domain.data_access_layer.engine import add_engine_pidguard, app_db_engine_provider
 from picachu.modules.auth.auth_routes import auth_blueprint
 from picachu.modules.galleries.galleries_routers import galleries_blueprint
 from picachu.modules.photos.photos_routes import photos_blueprint
-
 
 
 def create_app(config=ConfigProvider):
@@ -17,13 +17,18 @@ def create_app(config=ConfigProvider):
     app = Flask(__name__)
     app.config.from_object(config)
 
+
     # without this /feeds will work but /feeds/ with the slash at the end won't
     app.url_map.strict_slashes = False
     jwt = JWTManager(app)
 
-    #ToDo: call connection_string_builder.build_connection_string depending on which config
+    app_db_engine_provider.set_engine(create_engine(
+        config.SQLALCHEMY_DATABASE_URI,
+        isolation_level='READ COMMITTED',
+        pool_pre_ping=True,
+    ))
 
-    add_engine_pidguard(app_db_engine)
+    add_engine_pidguard(app_db_engine_provider.get_engine())
 
     # allow to call the api from any origin for now
     CORS(
