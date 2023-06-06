@@ -16,7 +16,6 @@
   - [Where do we store the tests?](#tests_location)
   - [What does a typical test case and its code look like?](#tests_example)
 - [All the HTTP status codes in details for better testing](#status_codes_details)
-- [Tests coverage](#coverage)
 - [Executing Tests](#execute)
 
 ## Functions of PiCachu API <a name="api_func"></a> 
@@ -220,30 +219,6 @@ Below are the endpoints and status codes for each scenario for those who were no
   - Attempt to upload a photo with foreign JWT token - **422 "UNPROCESSABLE ENTITY"**
   - Attempt to upload a photo with wrong (wrong file format) or empty body - **500 "INTERNAL SERVER ERROR"**
   
-## Tests coverage <a name="coverage"></a> 
-In Pytest, coverage is measured extremely simply. It is enough to set one dependency and run the tests with the correct flag:
-```
-poetry add pytest-cov
-
-poetry run pytest --cov
-
-# Sample conclusion
-tests/test_example.py ..      [ 66%]
-tests/test_hexlet_pytest.py . [100%]
-
-Name                        Stmts   Miss  Cover
------------------------------------------------
-hexlet_pytest/__init__.py       1      0   100%
-hexlet_pytest/example.py        4      1    75%
------------------------------------------------
-TOTAL                           5      1    80%
-
-```
-After all the tests, Pytest displays a summary table for each file. It shows the percentage of code covered by the tests.
-
-In the example above you can see that the file _init_.py has 100% code coverage, but the file example.py has only 75%. At the same time the total code coverage is 80%.
-
-Note that the coverage depends heavily on which tests are run. If some of the tests failed, Pytest will show much less coverage - the tests simply won't get to all of the code. That's why coverage is only measured when all the tests are green.
 
 ## Executing Tests <a name="execute"></a> 
 To execute Cypress component test, run this command in the terminal:
