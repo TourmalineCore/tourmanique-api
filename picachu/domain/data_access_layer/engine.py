@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
 
-from picachu.domain.data_access_layer.build_connection_string import connection_string_builder
+from picachu.config.postgres_config import postgres_username, postgres_password, postgres_host, postgres_database
 
 
 def add_engine_pidguard(engine):
@@ -41,10 +41,20 @@ def add_engine_pidguard(engine):
 class DBEngineProvider:
     def __init__(self):
         self.app_db_engine = create_engine(
-            connection_string_builder.get_connection_string(),
+            f'postgresql+psycopg2://{postgres_username}:{postgres_password}@{postgres_host}/{postgres_database}',
             isolation_level='READ COMMITTED',
             pool_pre_ping=True,
         )
+
+    def build_engine_string(
+            self,
+            username: str,
+            password: str,
+            host: str,
+            database: str,
+    ) -> str:
+        self.app_db_engine = f'postgresql+psycopg2://{username}:{password}@{host}/{database}'
+        return self.app_db_engine
 
     def set_engine(self, engine):
         self.app_db_engine = engine
