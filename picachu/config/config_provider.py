@@ -8,7 +8,7 @@ class ConfigProvider:
     ENV = env
     DEBUG = debug
     JWT_SECRET_KEY = jwt_secret_key
-    SQLALCHEMY_DATABASE_URI = app_db_engine_provider.build_engine_string(
+    SQLALCHEMY_DATABASE_URI = app_db_engine_provider.build_connection_string(
         database=postgres_database,
         host=postgres_host,
         password=postgres_password,
@@ -18,7 +18,7 @@ class ConfigProvider:
 
 
 class TestConfigProvider(ConfigProvider):
-    SQLALCHEMY_DATABASE_URI = app_db_engine_provider.build_engine_string(
+    SQLALCHEMY_DATABASE_URI = app_db_engine_provider.build_connection_string(
         database='test_db',
         host='test-db',
         password='postgres',

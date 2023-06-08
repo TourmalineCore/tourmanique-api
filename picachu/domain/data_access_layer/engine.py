@@ -40,21 +40,23 @@ def add_engine_pidguard(engine):
 
 class DBEngineProvider:
     def __init__(self):
+        self.connection_string = f'postgresql+psycopg2://{postgres_username}:{postgres_password}@{postgres_host}/{postgres_database}'
+
         self.app_db_engine = create_engine(
-            f'postgresql+psycopg2://{postgres_username}:{postgres_password}@{postgres_host}/{postgres_database}',
+            self.connection_string,
             isolation_level='READ COMMITTED',
             pool_pre_ping=True,
         )
 
-    def build_engine_string(
+    def build_connection_string(
             self,
             username: str,
             password: str,
             host: str,
             database: str,
     ) -> str:
-        self.app_db_engine = f'postgresql+psycopg2://{username}:{password}@{host}/{database}'
-        return self.app_db_engine
+        self.connection_string = f'postgresql+psycopg2://{username}:{password}@{host}/{database}'
+        return self.connection_string
 
     def set_engine(self, engine):
         self.app_db_engine = engine
