@@ -75,3 +75,4 @@ def test_log_in_with_empty_user_credentials(login, password, flask_app):
 
     response = flask_app.post(url_for('api.auth.log_in'), json=data)
     assert response.status_code == HTTPStatus.UNAUTHORIZED
+

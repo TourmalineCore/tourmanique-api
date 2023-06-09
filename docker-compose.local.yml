@@ -16,12 +16,34 @@ services:
       - "7501:5000"
     env_file:
       - .env
+    depends_on:
+      - test-db
 
   picachu-api-postgres:
     env_file:
       - .env
     ports:
       - "7510:5432"
+
+  test-db:
+    container_name: test-db
+    image: postgres:13.3-alpine
+    restart: always
+    volumes:
+      - test-db-data:/var/lib/postgresql/data/
+    healthcheck:
+      test: "pg_isready -U $$POSTGRES_USER"
+      timeout: 10s
+      interval: 10s
+      retries: 3
+    networks:
+      - picachu-net
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "test_db"
+    ports:
+      - "65432:5432"
 
   picachu-api-s3:
     container_name: picachu-api-s3
@@ -46,3 +68,6 @@ services:
     ports:
       - "7513:5672"
       - "7514:15672"
+
+volumes:
+  test-db-data:
