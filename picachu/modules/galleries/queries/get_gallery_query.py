@@ -32,3 +32,15 @@ class GetGalleryQuery:
             return galleries_list
         finally:
             current_session.close()
+
+    @classmethod
+    def deleted_by_id(cls, gallery_id: int) -> Optional[Gallery]:
+        current_session = session()
+        try:
+            return current_session \
+                .query(Gallery) \
+                .filter(Gallery.deleted_at_utc != None) \
+                .filter(Gallery.id == gallery_id) \
+                .one_or_none()
+        finally:
+            current_session.close()
