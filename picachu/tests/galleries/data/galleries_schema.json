@@ -1,0 +1,39 @@
+{
+   "type":"array",
+   "items":{
+      "type":"object",
+      "properties":{
+         "id":{
+            "type":"integer"
+         },
+         "name":{
+            "enum":[
+               "Admin",
+               "Test Gallery",
+               "Admin22",
+               "Admin23"
+            ]
+         },
+         "photosCount":{
+            "type":"integer",
+            "enum":[
+               0
+            ]
+         },
+         "previewPhotos":{
+            "type":"array",
+            "items":{
+               "items":{
+
+               }
+            }
+         }
+      },
+      "required":[
+         "id",
+         "name",
+         "photosCount",
+         "previewPhotos"
+      ]
+   }
+}

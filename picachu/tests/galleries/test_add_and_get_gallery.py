@@ -2,16 +2,25 @@ from http import HTTPStatus
 
 import pytest
 from flask import url_for
-
+from picachu.helpers.validate_json_helper import validate_json_schema
+from pathlib import Path
+import json
 
 @pytest.mark.parametrize(
     'name',
     [
         ('Test Gallery'),
         ('    Admin    '),
+        ('    Admin22    '),
+        ('    Admin23    '),
     ]
     )
-def test_add_gallery_with_correct_user_credentials(name, flask_app, access_token):
+def test_add_gallery_with_correct_user_credentials(
+        name,
+        flask_app,
+        db_without_test_data,
+        access_token
+):
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -20,9 +29,14 @@ def test_add_gallery_with_correct_user_credentials(name, flask_app, access_token
         'name': name,
     }
 
-    response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
+    creation_response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
+    galleries = flask_app.get(url_for('api.galleries.get_galleries'), headers=headers)
 
-    assert response.status_code == HTTPStatus.CREATED
+    schema = json.loads(Path("./picachu/tests/galleries/data/galleries_schema.json").read_text())
+    schema_validation_result = validate_json_schema(schema, galleries)
+
+    assert creation_response.status_code == HTTPStatus.CREATED
+    assert schema_validation_result is True
 
 
 @pytest.mark.parametrize(
@@ -32,7 +46,11 @@ def test_add_gallery_with_correct_user_credentials(name, flask_app, access_token
         ('   '),
     ]
     )
-def test_add_gallery_with_empty_user_credentials(name, flask_app, access_token):
+def test_add_gallery_with_empty_user_credentials(
+        name,
+        flask_app,
+        access_token
+):
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -44,6 +62,7 @@ def test_add_gallery_with_empty_user_credentials(name, flask_app, access_token):
     response = flask_app.post(url_for('api.galleries.add_gallery'), json=data, headers=headers)
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
+    ### No
     assert response.text == '{\n  "msg": "Gallery name must not be empty."\n}\n'
 
 
