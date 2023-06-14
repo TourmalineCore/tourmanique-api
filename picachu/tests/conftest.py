@@ -4,7 +4,7 @@ import pytest
 from flask_jwt_extended import create_access_token
 
 from application import create_app
-from picachu.modules.auth.auth_routes import log_in, USER_ID
+from picachu.modules.auth.auth_routes import USER_ID
 
 
 from sqlalchemy import create_engine, delete
@@ -12,10 +12,8 @@ from sqlalchemy.orm import sessionmaker
 
 import logging
 
-
 from picachu.config.config_provider import TestConfigProvider
 from picachu.domain import Gallery
-from picachu.domain.data_access_layer.db import db
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -35,7 +33,7 @@ def flask_app():
     ctx.pop()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def access_token(flask_app):
     access_token = create_access_token(identity=USER_ID,
                                        expires_delta=datetime.timedelta(days=30))
@@ -59,7 +57,17 @@ def db_session(flask_app, database_uri):
         autoflush=False,
         autocommit=False
     )
+
     return session_factory
+
+
+@pytest.fixture
+def db_without_test_data(db_session):
+    with db_session() as session:
+        session.execute(delete(Gallery))
+        session.commit()
+
+        logger.info("Deleted test data from the database.")
 
 
 @pytest.fixture
@@ -80,7 +88,9 @@ def db_with_test_data(db_session):
 
         logger.info("Deleted test data from the database.")
 
-        for galleries_id, name, user_id in zip(galleries_id, galleries_names, galleries_user_id):
+        for galleries_id, name, user_id in zip(galleries_id,
+                                               galleries_names,
+                                               galleries_user_id):
             session.add(Gallery(id=galleries_id,
                                 user_id=user_id,
                                 name=name))

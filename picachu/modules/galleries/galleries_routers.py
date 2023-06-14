@@ -30,7 +30,7 @@ galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')
 def add_gallery():
     current_user_id = get_jwt_identity()
     validation_param = ValidationGalleryName(gallery_name=request.json.get('name'))
-    print('*************', validation_param.gallery_name)
+
     if validation_param.gallery_name is False:
         return jsonify({'msg': 'Gallery name must not be empty.'}), HTTPStatus.BAD_REQUEST
 
