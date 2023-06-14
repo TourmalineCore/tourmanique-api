@@ -8,14 +8,14 @@ from PIL import Image
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from picachu.config.rabbitmq_config import rabbitmq_photo_for_models_exchange_name
-from picachu.domain import Photo
-from picachu.helpers.rabbitmq_message_publisher.rabbitmq_message_publisher import RabbitMqMessagePublisher
-from picachu.modules.auth.is_user_has_access import IsUserHasAccess
-from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
-from picachu.modules.photos.commands.new_photo_command import NewPhotoCommand
-from picachu.helpers.s3_helper import S3Helper
-from picachu.helpers.s3_paths import create_path_for_photo
+from tourmanique.config.rabbitmq_config import rabbitmq_photo_for_models_exchange_name
+from tourmanique.domain import Photo
+from tourmanique.helpers.rabbitmq_message_publisher.rabbitmq_message_publisher import RabbitMqMessagePublisher
+from tourmanique.modules.auth.is_user_has_access import IsUserHasAccess
+from tourmanique.modules.galleries.queries.get_gallery_query import GetGalleryQuery
+from tourmanique.modules.photos.commands.new_photo_command import NewPhotoCommand
+from tourmanique.helpers.s3_helper import S3Helper
+from tourmanique.helpers.s3_paths import create_path_for_photo
 
 photos_blueprint = Blueprint('photos', __name__, url_prefix='/photos')
 

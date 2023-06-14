@@ -1,6 +1,6 @@
-from picachu.domain import Gallery
-from picachu.domain.data_access_layer.session import session
-from picachu.modules.auth.auth_routes import USER_ID
+from tourmanique.domain import Gallery
+from tourmanique.domain.data_access_layer.session import session
+from tourmanique.modules.auth.auth_routes import USER_ID
 
 
 class IsUserHasAccess:

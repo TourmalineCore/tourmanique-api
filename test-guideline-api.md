@@ -1,5 +1,5 @@
 # Rules and Patterns of the API testing
-- [Functions of PiCachu API](#api_func)
+- [Functions of Tourmanique API](#api_func)
 - [Main rules](#main_rules)
   - [Frameworks and tools](#frameworks)
   - [Testing methodology](#methodology)
@@ -18,7 +18,7 @@
 - [All the HTTP status codes in details for better testing](#status_codes_details)
 - [Executing Tests](#execute)
 
-## Functions of PiCachu API <a name="api_func"></a> 
+## Functions of Tourmanique API <a name="api_func"></a> 
 - Backend\
 Main API (REST) service for executing CRUD operations and (managing all the actions of it's services) takes a role of the bridge between each ML model services\
 Functions:
@@ -41,7 +41,7 @@ Tools:
 
 ### Testing methodology<a name="methodology"></a> 
 Tests will be written only by **TDD (Test Driven Development)** methodology.\
-Details are prescribed in the [**Main PiCachu Test Strategy**](https://github.com/TourmalineCore/picachu-documentation#readme) \
+Details are prescribed in the [**Main Tourmanique Test Strategy**](https://github.com/TourmalineCore/tourmanique-documentation#readme) \
 This is a must-read if you're not already familiar with it
 
 ### Developers responsibilities<a name="dev_responsibilities"></a> 
@@ -50,7 +50,7 @@ Developers should:
 2. Follow ```TDD```
 
 ## The life cycle of a feature<a name="feature_life"></a> 
-The life cycle of a feature whether backend or frontend in the project "PiCachu" is described in the [**Main PiCachu Test Strategy**](https://github.com/TourmalineCore/picachu-documentation#readme) \
+The life cycle of a feature whether backend or frontend in the project "Tourmanique" is described in the [**Main Tourmanique Test Strategy**](https://github.com/TourmalineCore/tourmanique-documentation#readme) \
 This is a must-read if you're not already familiar with it
 
 ## Unit testing<a name="unit"></a> 
@@ -58,7 +58,7 @@ This is a must-read if you're not already familiar with it
 - Developers are covering every method and module by unit tests where they should check the HTTP response status-code and the main functionality of the module
 
 ## Integration testing<a name="integration"></a> 
-- Integration tests imply interaction with databases - at this stage ***it is obligatory to use a separate test database*** ```"test_db"``` (the main database - ```"picachu"```) for the next points:
+- Integration tests imply interaction with databases - at this stage ***it is obligatory to use a separate test database*** ```"test_db"``` (the main database - ```"tourmanique"```) for the next points:
   - Maintain atomicity of testing, where each test is independent of the other 
   - Optimization by avoiding overloading the main database with unnecessary test information
 
@@ -107,7 +107,7 @@ By following these best practices, you can ensure that your API is properly test
 
 ## What HTTP status codes we expect in response? <a name="status_codes"></a> 
 
-In general, the status codes of API endpoints of the PiCachu project:
+In general, the status codes of API endpoints of the Tourmanique project:
 - for positive scenarios - **200, 201**
 - failed securiti scenarios - **401, 422**
 - negative scenarios with errors in the contract scheme - **400, 500** 
@@ -116,10 +116,10 @@ In general, the status codes of API endpoints of the PiCachu project:
 <a name="guide"></a> 
 
 ### Where do we store the tests?<a name="tests_location"></a> 
-In our project, the tests of the backend part are stored in the folder: ```picachu-api/picachu/tests/{*page_name*}``` and their name is typed with an underscore with ***test*** in the beginning:\
-```picachu-api/picachu/tests/{*page_name*}/test_{*page_name*}.py```
+In our project, the tests of the backend part are stored in the folder: ```tourmanique-api/tourmanique/tests/{*page_name*}``` and their name is typed with an underscore with ***test*** in the beginning:\
+```tourmanique-api/tourmanique/tests/{*page_name*}/test_{*page_name*}.py```
 For example, the ***test path of the authentication page*** is here: 
-```picachu-api/picachu/tests/auth/test_auth.py``` \
+```tourmanique-api/tourmanique/tests/auth/test_auth.py``` \
 The tests folder contains inside folders whose names tell you the specific pages.
 
 ### What does a typical test case and its code look like? <a name="tests_example"></a> 

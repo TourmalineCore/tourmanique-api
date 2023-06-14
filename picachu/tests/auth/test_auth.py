@@ -3,8 +3,8 @@ from http import HTTPStatus
 import pytest
 from flask import url_for
 
-from picachu.config.auth_config import auth_username, auth_password
-from picachu.helpers.validate_json_helper import validate_json_schema
+from tourmanique.config.auth_config import auth_username, auth_password
+from tourmanique.helpers.validate_json_helper import validate_json_schema
 
 
 def test_log_in_with_the_correct_user_credentials(flask_app):

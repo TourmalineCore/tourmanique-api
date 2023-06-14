@@ -1,2 +1,2 @@
-from picachu.domain.galleries.galleries import Gallery
-from picachu.domain.photos.photo import Photo
+from tourmanique.domain.galleries.galleries import Gallery
+from tourmanique.domain.photos.photo import Photo

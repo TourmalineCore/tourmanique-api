@@ -1,10 +1,10 @@
 from http import HTTPStatus
 from typing import List
 
-from picachu.domain import Photo
+from tourmanique.domain import Photo
 from flask import request
 
-from picachu.domain.data_access_layer.session import session
+from tourmanique.domain.data_access_layer.session import session
 
 
 class GetSortedPhotosQuery:

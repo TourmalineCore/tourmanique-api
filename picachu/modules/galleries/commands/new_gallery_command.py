@@ -1,5 +1,5 @@
-from picachu.domain import Gallery
-from picachu.domain.data_access_layer.session import session
+from tourmanique.domain import Gallery
+from tourmanique.domain.data_access_layer.session import session
 
 
 class NewGalleryCommand:

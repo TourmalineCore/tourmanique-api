@@ -1,4 +1,4 @@
-from picachu.domain.data_access_layer.db import db
+from tourmanique.domain.data_access_layer.db import db
 
 
 class Gallery(db.Model):

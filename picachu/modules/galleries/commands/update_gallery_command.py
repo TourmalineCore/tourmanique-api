@@ -1,6 +1,6 @@
-from picachu.domain import Gallery
-from picachu.domain.data_access_layer.session import session
-from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
+from tourmanique.domain import Gallery
+from tourmanique.domain.data_access_layer.session import session
+from tourmanique.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 
 
 class UpdateGalleryCommand:

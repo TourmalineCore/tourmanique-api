@@ -1,7 +1,7 @@
-from picachu.config.flask_config import env, debug
-from picachu.config.jwt_config import jwt_secret_key
-from picachu.config.postgres_config import postgres_database, postgres_host, postgres_password, postgres_username
-from picachu.domain.data_access_layer.engine import app_db_engine_provider
+from tourmanique.config.flask_config import env, debug
+from tourmanique.config.jwt_config import jwt_secret_key
+from tourmanique.config.postgres_config import postgres_database, postgres_host, postgres_password, postgres_username
+from tourmanique.domain.data_access_layer.engine import app_db_engine_provider
 
 
 class ConfigProvider:

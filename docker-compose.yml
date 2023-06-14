@@ -2,38 +2,38 @@ version: '3.8'
 
 services:
   run-api-locally:
-    container_name: picachu-api-local-starter
+    container_name: tourmanique-api-local-starter
     restart: "no"
     image: tianon/true
     depends_on:
-      - picachu-api
-      - picachu-api-postgres
-      - picachu-api-rabbitmq
+      - tourmanique-api
+      - tourmanique-api-postgres
+      - tourmanique-api-rabbitmq
 
-  picachu-api:
-    container_name: picachu-api
-    image: picachu-api:latest
+  tourmanique-api:
+    container_name: tourmanique-api
+    image: tourmanique-api:latest
     restart: unless-stopped
     networks:
-      - picachu-net
+      - tourmanique-net
 
-  picachu-api-postgres:
-    container_name: picachu-api-postgres
+  tourmanique-api-postgres:
+    container_name: tourmanique-api-postgres
     image: postgres:13.3-alpine
     restart: always
     volumes:
-      - picachu-api-postgres-data:/var/lib/postgresql/data/
+      - tourmanique-api-postgres-data:/var/lib/postgresql/data/
     healthcheck:
       test: "pg_isready -U $$POSTGRES_USER"
       timeout: 10s
       interval: 10s
       retries: 3
     networks:
-      - picachu-net
+      - tourmanique-net
 
 
-  picachu-api-rabbitmq:
-    container_name: picachu-api-rabbitmq
+  tourmanique-api-rabbitmq:
+    container_name: tourmanique-api-rabbitmq
     image: rabbitmq:3.9.13-management-alpine
     restart: always
     healthcheck:
@@ -42,12 +42,12 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - picachu-net
+      - tourmanique-net
 
 
 volumes:
-  picachu-api-postgres-data:
+  tourmanique-api-postgres-data:
 
 networks:
-  picachu-net:
+  tourmanique-net:
     driver: bridge

@@ -3,10 +3,10 @@ version: '3.8'
 services:
   run-api-locally:
     depends_on:
-      - picachu-api
-      - picachu-api-s3
+      - tourmanique-api
+      - tourmanique-api-s3
 
-  picachu-api:
+  tourmanique-api:
     build:
       context: .
     command: poetry run flask run
@@ -19,7 +19,7 @@ services:
     depends_on:
       - test-db
 
-  picachu-api-postgres:
+  tourmanique-api-postgres:
     env_file:
       - .env
     ports:
@@ -37,7 +37,7 @@ services:
       interval: 10s
       retries: 3
     networks:
-      - picachu-net
+      - tourmanique-net
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
@@ -45,8 +45,8 @@ services:
     ports:
       - "65432:5432"
 
-  picachu-api-s3:
-    container_name: picachu-api-s3
+  tourmanique-api-s3:
+    container_name: tourmanique-api-s3
     image: minio/minio:latest
     command: server /data --console-address ":7001"
     restart: always
@@ -60,9 +60,9 @@ services:
     volumes:
       - ./s3-data:/data
     networks:
-      - picachu-net
+      - tourmanique-net
 
-  picachu-api-rabbitmq:
+  tourmanique-api-rabbitmq:
     env_file:
       - .env
     ports:

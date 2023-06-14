@@ -4,12 +4,12 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import upgrade as _upgrade
 from sqlalchemy import create_engine
 
-from picachu.config.config_provider import ConfigProvider
-from picachu.domain.data_access_layer.db import db, migrate
-from picachu.domain.data_access_layer.engine import add_engine_pidguard, app_db_engine_provider
-from picachu.modules.auth.auth_routes import auth_blueprint
-from picachu.modules.galleries.galleries_routers import galleries_blueprint
-from picachu.modules.photos.photos_routes import photos_blueprint
+from tourmanique.config.config_provider import ConfigProvider
+from tourmanique.domain.data_access_layer.db import db, migrate
+from tourmanique.domain.data_access_layer.engine import add_engine_pidguard, app_db_engine_provider
+from tourmanique.modules.auth.auth_routes import auth_blueprint
+from tourmanique.modules.galleries.galleries_routers import galleries_blueprint
+from tourmanique.modules.photos.photos_routes import photos_blueprint
 
 
 def create_app(config=ConfigProvider):

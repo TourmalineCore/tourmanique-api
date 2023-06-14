@@ -1,5 +1,5 @@
-from picachu.domain import Photo
-from picachu.domain.data_access_layer.session import session
+from tourmanique.domain import Photo
+from tourmanique.domain.data_access_layer.session import session
 
 
 class NewPhotoCommand:

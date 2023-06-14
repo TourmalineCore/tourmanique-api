@@ -2,7 +2,7 @@ import datetime
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
-from picachu.config.auth_config import auth_username, auth_password
+from tourmanique.config.auth_config import auth_username, auth_password
 from http import HTTPStatus
 
 USER_ID = 1

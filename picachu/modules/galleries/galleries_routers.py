@@ -4,22 +4,22 @@ import random
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from picachu.domain import Gallery
-from picachu.helpers.s3_helper import S3Helper
+from tourmanique.domain import Gallery
+from tourmanique.helpers.s3_helper import S3Helper
 
 
-from picachu.modules.auth.is_user_has_access import IsUserHasAccess
-from picachu.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
+from tourmanique.modules.auth.is_user_has_access import IsUserHasAccess
+from tourmanique.modules.galleries.commands.delete_gallery_command import DeleteGalleryCommand
 
-from picachu.modules.galleries.commands.restore_gallery_command import RestoreGalleryCommand
-from picachu.modules.galleries.commands.new_gallery_command import NewGalleryCommand
-from picachu.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
-from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
-from picachu.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
+from tourmanique.modules.galleries.commands.restore_gallery_command import RestoreGalleryCommand
+from tourmanique.modules.galleries.commands.new_gallery_command import NewGalleryCommand
+from tourmanique.modules.galleries.commands.update_gallery_command import UpdateGalleryCommand
+from tourmanique.modules.galleries.queries.get_gallery_query import GetGalleryQuery
+from tourmanique.modules.galleries.schemes.validation_gallery_name import ValidationGalleryName
 
-from picachu.modules.photos.commands.sorting_params import SortingParams
-from picachu.modules.photos.queries.get_photos_query import GetPhotoQuery
-from picachu.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
+from tourmanique.modules.photos.commands.sorting_params import SortingParams
+from tourmanique.modules.photos.queries.get_photos_query import GetPhotoQuery
+from tourmanique.modules.photos.queries.get_sorted_photos import GetSortedPhotosQuery
 
 
 galleries_blueprint = Blueprint('galleries', __name__, url_prefix='/galleries')

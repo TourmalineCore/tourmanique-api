@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Optional
 
 import boto3
 
-from picachu.config import s3_config
-from picachu.helpers.s3_paths import append_prefix, get_parent_path, create_folder_path, build_object_url
+from tourmanique.config import s3_config
+from tourmanique.helpers.s3_paths import append_prefix, get_parent_path, create_folder_path, build_object_url
 
 ACL_PRIVATE = 'private'
 ACL_PUBLIC_READ = 'public-read'

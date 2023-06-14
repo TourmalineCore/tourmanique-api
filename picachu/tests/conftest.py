@@ -6,9 +6,9 @@ import logging
 
 import pytest
 
-from picachu.config.config_provider import TestConfigProvider
-from picachu.domain import Gallery
-from picachu.domain.data_access_layer.db import db
+from tourmanique.config.config_provider import TestConfigProvider
+from tourmanique.domain import Gallery
+from tourmanique.domain.data_access_layer.db import db
 
 logging.basicConfig()
 logger = logging.getLogger()

@@ -2,9 +2,9 @@ from http import HTTPStatus
 
 from requests import Response
 
-from picachu.domain.data_access_layer.session import session
+from tourmanique.domain.data_access_layer.session import session
 
-from picachu.modules.galleries.queries.get_gallery_query import GetGalleryQuery
+from tourmanique.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 
 
 class RestoreGalleryCommand:
