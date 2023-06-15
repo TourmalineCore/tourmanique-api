@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "accessToken": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "required": [
+    "accessToken"
+  ]
+}
