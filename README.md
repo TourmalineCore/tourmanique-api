@@ -1,4 +1,4 @@
-# picachu-api
+# tourmanique-api 
 
 ## Description
 A project to determine the uniqueness of a photo by its components. API application.
@@ -59,12 +59,12 @@ Then you need to select Python interpreter from Poetry:
 
 | Service                   | Port | Description      |
 |---------------------------|------|------------------|
-| picachu-api               | 7501 |                  |
-| picachu-api-postgres      | 7510 |                  |
-| picachu-api-s3            | 7511 | REST             |
-| picachu-api-s3            | 7512 | minio-UI         |
-| picachu-api-rabbitmq      | 7513 | rabbitmq (5672)  |
-| picachu-api-rabbitmq      | 7514 | rabbitmq (15672) |
+| tourmanique-api               | 7501 |                  |
+| tourmanique-api-postgres      | 7510 |                  |
+| tourmanique-api-s3            | 7511 | REST             |
+| tourmanique-api-s3            | 7512 | minio-UI         |
+| tourmanique-api-rabbitmq      | 7513 | rabbitmq (5672)  |
+| tourmanique-api-rabbitmq      | 7514 | rabbitmq (15672) |
 
 The main idea is to run project in the docker container to be able to run this project on the different OSs (Win, Linux, Mac). This was done in case of **differences** in the `poetry.lock` on the different OSs.
 
@@ -78,7 +78,7 @@ The main idea is to run project in the docker container to be able to run this p
 
 #### How to access services
 
-- **PicachuApi**:  you should be able to access API at http://localhost:7501
+- **TourmaniqueApi**:  you should be able to access API at http://localhost:7501
 
 ### Linting
 
