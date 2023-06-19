@@ -72,16 +72,15 @@ def db_without_test_data(db_session):
 
 @pytest.fixture
 def db_with_test_data(db_session):
-    galleries_id = ['1',
-                    '2',
-                    '3']
+
     galleries_names = ['gallery_1',
                        'gallery_2',
                        'gallery_3']
     galleries_user_id = ['1',
                          '1',
                          '2']
-
+    galleries_id = [i + 1 for i in range(len(galleries_names))]
+    
     with db_session() as session:
         session.execute(delete(Gallery))
         session.commit()
