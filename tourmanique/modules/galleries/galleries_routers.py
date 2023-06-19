@@ -123,7 +123,6 @@ def restore_gallery(gallery_id):
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
 
 
-
 @galleries_blueprint.route('/<int:gallery_id>/photos', methods=['GET'])
 @jwt_required()
 def get_photos(gallery_id):
