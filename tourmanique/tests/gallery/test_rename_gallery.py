@@ -139,10 +139,10 @@ def test_cant_rename_gallery_if_name_is_empty_or_whitespace_name(
         'newName': gallery_name,
     }
 
-    gallery = flask_app.post(url_for('api.galleries.rename_gallery', gallery_id=1),
-                             json=gallery_name,
-                             headers=headers)
-    gallery_error_message = json.loads(gallery.text)['msg']
+    renaming_gallery = flask_app.post(url_for('api.galleries.rename_gallery', gallery_id=1),
+                                      json=gallery_name,
+                                      headers=headers)
+    gallery_error_message = json.loads(renaming_gallery.text)
 
-    assert gallery.status_code == HTTPStatus.BAD_REQUEST
-    assert gallery_error_message == 'Gallery name must not be empty.'
+    assert renaming_gallery.status_code == HTTPStatus.BAD_REQUEST
+    assert gallery_error_message[0]['msg'] == 'Gallery name must not be empty.'
