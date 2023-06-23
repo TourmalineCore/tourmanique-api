@@ -18,13 +18,12 @@ jobs:
           docker build -t ghcr.io/tourmalinecore/tourmanique/api:latest -t ghcr.io/tourmalinecore/tourmanique/api:${{ github.sha }} -f ./Dockerfile .
           docker push ghcr.io/tourmalinecore/tourmanique/api:latest
           docker push ghcr.io/tourmalinecore/tourmanique/api:${{ github.sha }}
-
   pytests:
     needs: build-image
     name: Tests
     env:
       JWT_SECRET_KEY: ${{ secrets.DEV_JWT_SECRET_KEY }}
-      POSTGRES_HOST: ${{ secrets.DEV_POSTGRES_HOST }}
+      POSTGRES_HOST: ${{ secrets.DB_EXTERNAL_HOST }}
       POSTGRES_DB: ${{ secrets.DEV_POSTGRES_DB }}
       POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
       POSTGRES_USER: ${{ secrets.DEV_POSTGRES_USER }}
@@ -47,7 +46,9 @@ jobs:
       - name: checkout
         uses: actions/checkout@v1
       - name: Start tests
-        run: poetry run pytest -v
+        run: |
+          poetry run pytest -v
+          run-api-locally
 
 #  deploy-to-dev-k8s:
 #    needs: build-image
