@@ -123,7 +123,6 @@ def restore_gallery(gallery_id):
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
 
 
-
 @galleries_blueprint.route('/<int:gallery_id>/photos', methods=['GET'])
 @jwt_required()
 def get_photos(gallery_id):
@@ -146,7 +145,7 @@ def get_photos(gallery_id):
             result.append(
                 {
                     'id': photo.id,
-                    'photoPath': photo.photo_file_path_s3,
+                    'photoPath': S3Helper().s3_get_full_file_url(photo.photo_file_path_s3),
                     'uniqueness': photo.overall_uniqueness,
                 }
             )
