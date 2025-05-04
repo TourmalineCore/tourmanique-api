@@ -131,4 +131,4 @@ dmypy.json
 /s3-data
 /.idea
 
-.DS_Store
+**/.DS_Store

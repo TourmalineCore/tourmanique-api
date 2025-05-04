@@ -10,12 +10,14 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from tourmanique.config.rabbitmq_config import rabbitmq_photo_for_models_exchange_name
 from tourmanique.domain import Photo
+from tourmanique.domain.data_access_layer.session import session
 from tourmanique.helpers.rabbitmq_message_publisher.rabbitmq_message_publisher import RabbitMqMessagePublisher
 from tourmanique.modules.auth.is_user_has_access import IsUserHasAccess
 from tourmanique.modules.galleries.queries.get_gallery_query import GetGalleryQuery
 from tourmanique.modules.photos.commands.new_photo_command import NewPhotoCommand
 from tourmanique.helpers.s3_helper import S3Helper
 from tourmanique.helpers.s3_paths import create_path_for_photo
+from tourmanique.modules.photos.queries.get_photos_query import GetPhotoQuery
 
 photos_blueprint = Blueprint('photos', __name__, url_prefix='/photos')
 
@@ -39,16 +41,14 @@ def add_photo(gallery_id):
     )
 
     photo_hash = str(imagehash.average_hash(Image.open(io.BytesIO(photo_bytes))))
-    color_uniqueness = random.randint(0, 100)
-    tag_uniqueness = random.randint(0, 100)
 
     photo_entity = Photo(photo_file_path_s3=photo_s3_path,
                          hash=photo_hash,
                          gallery_id=gallery_id,
                          date_of_upload=datetime.utcnow(),
-                         color_uniqueness=color_uniqueness,
-                         tag_uniqueness=tag_uniqueness,
-                         overall_uniqueness=(color_uniqueness + tag_uniqueness) / 2,
+                         color_uniqueness=None,
+                         tag_uniqueness=None,
+                         overall_uniqueness=None,
                          )
     photo_id = NewPhotoCommand().create(photo_entity)
 
@@ -59,5 +59,51 @@ def add_photo(gallery_id):
 
     RabbitMqMessagePublisher().publish_message_to_exchange(exchange_name=rabbitmq_photo_for_models_exchange_name,
                                                            message=message_with_photo_parameters)
+
+    return jsonify({'msg': 'OK'}), HTTPStatus.OK
+
+
+@photos_blueprint.route('/<int:photo_id>/get-gallery-id', methods=['GET'])
+def get_all_photo_ids_in_one_gallery_with_request_photo(photo_id):
+    photo_entity = GetPhotoQuery().by_id(photo_id)
+    gallery_id = photo_entity.gallery_id
+
+    photos = GetPhotoQuery().all_in_gallery_by_gallery_id(gallery_id)
+
+    photo_ids_in_one_gallery_list = list(map(lambda photo: photo.id, photos))
+
+    return jsonify(photo_ids_in_one_gallery_list), HTTPStatus.OK
+
+
+@photos_blueprint.route('/<int:photo_id>/add-photo-uniqueness', methods=['POST'])
+def add_photo_uniqueness(photo_id):
+    uniqueness_type = request.json.get('uniquenessType')
+    uniqueness_value = float(request.json.get('uniquenessValue'))
+
+    photo_entity = GetPhotoQuery().by_id(photo_id)
+
+    if uniqueness_type == 'tags':
+        current_session = session()
+        try:
+            photo_entity.tag_uniqueness = uniqueness_value
+            if photo_entity.tag_uniqueness is not None:
+                overall_uniqueness = (photo_entity.tag_uniqueness + photo_entity.color_uniqueness) / 2
+                photo_entity.overall_uniqueness = overall_uniqueness
+            current_session.add(photo_entity)
+            current_session.commit()
+        finally:
+            current_session.close()
+
+    elif uniqueness_type == 'color':
+        current_session = session()
+        try:
+            photo_entity.color_uniqueness = uniqueness_value
+            if photo_entity.tag_uniqueness is not None:
+                overall_uniqueness = (photo_entity.tag_uniqueness + photo_entity.color_uniqueness) / 2
+                photo_entity.overall_uniqueness = overall_uniqueness
+            current_session.add(photo_entity)
+            current_session.commit()
+        finally:
+            current_session.close()
 
     return jsonify({'msg': 'OK'}), HTTPStatus.OK

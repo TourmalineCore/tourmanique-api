@@ -1,5 +1,7 @@
 from http import HTTPStatus
 import random
+import requests
+import json
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -152,6 +154,101 @@ def get_photos(gallery_id):
         return jsonify({
             'list': result,
             'totalNumberOfItems': GetPhotoQuery().count_photos(gallery_id)
+        }), HTTPStatus.OK 
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+@galleries_blueprint.route('/<int:gallery_id>/<int:photo_id>/metrics', methods=['GET'])
+@jwt_required()
+def get_photo_metrics(
+    gallery_id, 
+    photo_id
+    ):
+    current_user_id = get_jwt_identity()
+    if not GetGalleryQuery().by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+      
+    try:
+        object_service_response = json.loads(requests.get(f'http://90.156.217.104:7541/objects-service/results/{photo_id}').text)
+    except requests.exceptions.ConnectionError:
+        object_service_response = []
+    
+    try:
+        emotion_service_response = json.loads(requests.get(f'http://emotions-model:5000/emotions-service/results/{photo_id}').text)
+    except requests.exceptions.ConnectionError:
+        emotion_service_response = []
+
+    try:  
+        colors_service_response = json.loads(requests.get(f'http://colors-model:5000/colors-service/results/{photo_id}').text)
+    except requests.exceptions.ConnectionError:
+        emotion_service_response = []
+
+    try:    
+        associations_service_response = json.loads(requests.get(f'http://associations-model:5000/associations-service/results/{photo_id}').text)
+    except requests.exceptions.ConnectionError:
+        emotion_service_response = []
+
+
+    photo_entity = GetPhotoQuery().by_id(photo_id)
+    if photo_entity.overall_uniqueness is not None:
+        overall_uniqueness_in_percentage = photo_entity.overall_uniqueness
+    else:
+        overall_uniqueness_in_percentage = 0
+
+    if photo_entity.tag_uniqueness is not None:
+        tags_uniqueness_in_percentage = photo_entity.tag_uniqueness
+    else:
+        tags_uniqueness_in_percentage = 0
+
+    if photo_entity.color_uniqueness is not None:
+        colors_uniqueness_in_percentage = photo_entity.color_uniqueness
+    else:
+        colors_uniqueness_in_percentage = 0
+
+    try:
+        return jsonify({
+            'metrics': { 
+                'uniqueness': {
+                    'mainInPercentage': overall_uniqueness_in_percentage,
+                    'colorsInPercentage': colors_uniqueness_in_percentage,
+                    'otherInPercentage': tags_uniqueness_in_percentage,
+                },
+                'features': {
+                    'colors': colors_service_response,
+                    'emotions': emotion_service_response,
+                    'objects': object_service_response,
+                    'associations': associations_service_response,
+                }
+            }
+        }), HTTPStatus.OK 
+    except Exception as err:
+        return jsonify(str(err)), HTTPStatus.BAD_REQUEST
+
+
+@galleries_blueprint.route('/<int:gallery_id>/<int:photo_id>/photo', methods=['GET'])
+@jwt_required()
+def get_photo_url(
+    gallery_id, 
+    photo_id
+    ):
+    current_user_id = get_jwt_identity()
+    if not GetGalleryQuery().by_id(gallery_id):
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+    if not IsUserHasAccess().to_gallery(current_user_id, gallery_id):
+        return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
+      
+    photo = GetPhotoQuery().by_id(photo_id)
+    if not photo:
+        return jsonify({'msg': 'Not Found'}), HTTPStatus.NOT_FOUND
+
+    try:
+        return jsonify({
+            'photo': {
+                'url': S3Helper().s3_get_full_file_url(photo.photo_file_path_s3)
+                }
         }), HTTPStatus.OK 
     except Exception as err:
         return jsonify(str(err)), HTTPStatus.BAD_REQUEST
