@@ -4,7 +4,7 @@ services:
   run-api-locally:
     container_name: tourmanique-api-local-starter
     restart: "no"
-    image: tianon/true
+    image: tianon/true:multiarch
     depends_on:
       - tourmanique-api
       - tourmanique-api-postgres
@@ -34,7 +34,7 @@ services:
 
   tourmanique-api-rabbitmq:
     container_name: tourmanique-api-rabbitmq
-    image: rabbitmq:3.9.13-management-alpine
+    image: rabbitmq:3.13-management-alpine
     restart: always
     healthcheck:
       test: rabbitmq-diagnostics -q ping

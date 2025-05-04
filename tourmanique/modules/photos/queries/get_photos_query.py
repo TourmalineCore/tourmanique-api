@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from tourmanique.domain import Photo, Gallery
 from tourmanique.domain.data_access_layer.session import session
@@ -10,7 +10,7 @@ class GetPhotoQuery:
         pass
 
     @staticmethod
-    def by_id(photo_id):
+    def by_id(photo_id) -> Optional[Photo]:
         current_session = session()
         try:
             return current_session \
@@ -55,5 +55,16 @@ class GetPhotoQuery:
                 .limit(4) \
                 .all()
             return photos_list
+        finally:
+            current_session.close()
+
+    @staticmethod
+    def all_in_gallery_by_gallery_id(gallery_id: int) -> List[Photo]:
+        current_session = session()
+        try:
+            return current_session \
+                .query(Photo) \
+                .filter(Photo.gallery_id == gallery_id) \
+                .all()
         finally:
             current_session.close()

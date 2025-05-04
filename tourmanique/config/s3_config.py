@@ -15,3 +15,9 @@ if s3_secret_access_key is None:
     raise ValueError('You should specify S3_SECRET_ACCESS_KEY environment variable to be able to connect to S3 bucket.')
 if s3_bucket_name is None:
     raise ValueError('You should specify S3_BUCKET_NAME environment variable to be able to connect to S3 bucket.')
+
+s3_endpoint_for_ui_links = os.getenv('S3_ENDPOINT_FOR_UI_LINKS')
+
+if s3_endpoint_for_ui_links is None:
+    raise ValueError('You should specify S3_ENDPOINT_FOR_UI_LINKS environment variable to be able to connect to S3 bucket.')
+    
