@@ -172,7 +172,7 @@ def get_photo_metrics(
         return jsonify({'msg': 'Forbidden'}), HTTPStatus.FORBIDDEN
       
     try:
-        object_service_response = json.loads(requests.get(f'http://90.156.217.104:7541/objects-service/results/{photo_id}').text)
+        object_service_response = json.loads(requests.get(f'http://objects-model:5000/objects-service/results/{photo_id}').text)
     except requests.exceptions.ConnectionError:
         object_service_response = []
     
@@ -184,12 +184,12 @@ def get_photo_metrics(
     try:  
         colors_service_response = json.loads(requests.get(f'http://colors-model:5000/colors-service/results/{photo_id}').text)
     except requests.exceptions.ConnectionError:
-        emotion_service_response = []
+        colors_service_response = []
 
     try:    
         associations_service_response = json.loads(requests.get(f'http://associations-model:5000/associations-service/results/{photo_id}').text)
     except requests.exceptions.ConnectionError:
-        emotion_service_response = []
+        associations_service_response = []
 
 
     photo_entity = GetPhotoQuery().by_id(photo_id)
