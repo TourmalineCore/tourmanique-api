@@ -6,22 +6,17 @@ on:
       - develop
 
 jobs:
-  build-image:
-    name: Build and push service image  
-    runs-on: ubuntu-22.04
-    steps:
-      - name: checkout
-        uses: actions/checkout@v1
-      - name: Build and push image
-        run: |
-          docker login ghcr.io -u ${{ secrets.GH_REGISTRY_LOGIN }} -p ${{ secrets.GH_REGISTRY_PASSWORD }}
-          docker build -t ghcr.io/tourmalinecore/tourmanique/api:latest -t ghcr.io/tourmalinecore/tourmanique/api:${{ github.sha }} -f ./Dockerfile .
-          docker push ghcr.io/tourmalinecore/tourmanique/api:latest
-          docker push ghcr.io/tourmalinecore/tourmanique/api:${{ github.sha }}
+  # this is needed to wait for the new docker image to be build and published to the registry
+  # so that we can use the image to run service of the needed commit related version as part of local-env
+  # the idea is taken from here https://stackoverflow.com/a/71489231
+  push_to_registry:
+    uses: ./.github/workflows/docker-build-and-push.yml
+    # without this it cannot login to the registry
+    secrets: inherit
 
   deploy-to-dev-k8s:
-    needs: build-image
     name: Deploy service to k8s for development environment  
+    needs: [push_to_registry]
     if: github.event_name == 'push'
     runs-on: ubuntu-22.04
     steps:
