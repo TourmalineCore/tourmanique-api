@@ -1,0 +1,117 @@
+# nameOverride: "python"
+
+image:
+  registry: ghcr.io
+  repository: tourmalinecore/tourmanique/api
+  tag: ""
+  pullPolicy: Always
+command:
+  - "poetry"
+args:
+  - "run"
+  - "flask"
+  - "run"
+
+podAnnotations:
+  checksum/config: "{{ include (print $.Template.BasePath \"/extra-list.yaml\") . | sha256sum }}"
+
+containerPorts:
+  http: 80
+  https: ""
+
+extraConfigMapEnvVars: {}
+
+extraConfigMapEnvVarsEncoded: |
+  {{- range $k, $v := .Values.extraConfigMapEnvVars }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+
+extraSecretEnvVars: {}
+
+extraEnvVars: []
+
+extraSecretEnvVarsEncoded: |
+  {{- range $k, $v := .Values.extraSecretEnvVars }}
+  {{- if not (kindIs "string" $v) }}
+  {{ $k }}: {{ $v | toString | b64enc | quote}}
+  {{- else}}
+  {{ $k }}: {{ $v | b64enc | quote}}
+  {{- end}}
+  {{- end }}
+
+extraEnvVarsCM: "{{ include \"common.names.fullname\" . }}"
+
+extraEnvVarsSecret: "{{ include \"common.names.fullname\" . }}"
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 150m
+    memory: 300Mi
+  requests:
+    cpu: 1m
+    memory: 25Mi
+
+livenessProbe:
+  enabled: false
+
+readinessProbe:
+  enabled: false
+
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+
+ingress:
+  enabled: true
+  selfSigned: false
+  pathType: ImplementationSpecific
+  apiVersion: ""
+  path: /api/
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt 
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+  ingressClassName: "nginx"
+  tls: true
+
+extraDeploy:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ include "common.names.fullname" . }}
+      namespace: {{ include "common.names.namespace" . | quote }}
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 6 }}
+        {{- end }}
+      {{- if .Values.commonAnnotations }}
+      annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 6 }}
+      {{- end }}
+    data:
+      {{- if .Values.extraConfigMapEnvVars }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.extraConfigMapEnvVarsEncoded "context" $ ) | nindent 6 }}
+      {{- end }}
+  - |
+    {{ $secret_name := printf "%s" ( include "common.names.fullname" .) }}
+    {{- if eq ( tpl .Values.extraEnvVarsSecret . ) $secret_name }}
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: {{ $secret_name }}
+      namespace: {{ include "common.names.namespace" . | quote }}
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 6 }}
+        {{- end }}
+      {{- if .Values.commonAnnotations }}
+      annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 6 }}
+      {{- end }}
+    type: Opaque
+    data:
+      {{- if .Values.extraSecretEnvVarsEncoded }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.extraSecretEnvVarsEncoded "context" $ ) | trim | nindent 6 }}
+      {{- end }}
+    {{- end }}
