@@ -1,4 +1,4 @@
-# nameOverride: "python"
+nameOverride: "python"
 
 image:
   registry: ghcr.io
