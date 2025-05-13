@@ -5,12 +5,13 @@ image:
   repository: tourmalinecore/tourmanique/api
   tag: ""
   pullPolicy: Always
-command:
-  - "poetry"
-args:
-  - "run"
-  - "flask"
-  - "run"
+  debug: true
+# command:
+#   - "poetry"
+# args:
+#   - "run"
+#   - "flask"
+#   - "run"
 
 podAnnotations:
   checksum/config: "{{ include (print $.Template.BasePath \"/extra-list.yaml\") . | sha256sum }}"
@@ -18,30 +19,6 @@ podAnnotations:
 containerPorts:
   http: 80
   https: ""
-
-extraConfigMapEnvVars: {}
-
-extraConfigMapEnvVarsEncoded: |
-  {{- range $k, $v := .Values.extraConfigMapEnvVars }}
-  {{ $k }}: {{ $v | quote }}
-  {{- end }}
-
-extraSecretEnvVars: {}
-
-extraEnvVars: []
-
-extraSecretEnvVarsEncoded: |
-  {{- range $k, $v := .Values.extraSecretEnvVars }}
-  {{- if not (kindIs "string" $v) }}
-  {{ $k }}: {{ $v | toString | b64enc | quote}}
-  {{- else}}
-  {{ $k }}: {{ $v | b64enc | quote}}
-  {{- end}}
-  {{- end }}
-
-extraEnvVarsCM: "{{ include \"common.names.fullname\" . }}"
-
-extraEnvVarsSecret: "{{ include \"common.names.fullname\" . }}"
 
 replicaCount: 1
 
@@ -63,18 +40,49 @@ service:
   type: ClusterIP
   ports:
     http: 80
+    https: ""
 
 ingress:
   enabled: true
-  selfSigned: false
-  pathType: ImplementationSpecific
-  apiVersion: ""
   path: /api/
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt 
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: letsencrypt 
+    nginx.ingress.kubernetes.io/rewrite-target: /api/$2
   ingressClassName: "nginx"
   tls: true
+
+# not needed in this setup
+serviceAccount:
+  create: false
+
+# not needed in this setup
+networkPolicy:
+  enabled: false
+
+extraConfigMapEnvVars: {}
+
+extraSecretEnvVars: {}
+
+extraEnvVars: []
+
+extraConfigMapEnvVarsEncoded: |
+  {{- range $k, $v := .Values.extraConfigMapEnvVars }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+
+extraSecretEnvVarsEncoded: |
+  {{- range $k, $v := .Values.extraSecretEnvVars }}
+  {{- if not (kindIs "string" $v) }}
+  {{ $k }}: {{ $v | toString | b64enc | quote}}
+  {{- else}}
+  {{ $k }}: {{ $v | b64enc | quote}}
+  {{- end}}
+  {{- end }}
+
+extraEnvVarsCM: "{{ include \"common.names.fullname\" . }}"
+
+extraEnvVarsSecret: "{{ include \"common.names.fullname\" . }}"
 
 extraDeploy:
   - |
