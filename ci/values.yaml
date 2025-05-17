@@ -5,20 +5,29 @@ image:
   repository: tourmalinecore/tourmanique-api
   tag: ""
   pullPolicy: Always
-  debug: true
-# command:
-#   - "poetry"
-# args:
-#   - "run"
-#   - "flask"
-#   - "run"
+  debug: false
+  livenessProbe:
+    enabled: false
+  pullSecrets: []
+  readinessProbe:
+    enabled: false
+  pullCredentials: {}
+  
+command:
+  - "poetry"
+args:
+  - "run"
+  - "flask"
+  - "run"
+
+
+bindURLs: 'http://+:80'
 
 podAnnotations:
   checksum/config: "{{ include (print $.Template.BasePath \"/extra-list.yaml\") . | sha256sum }}"
 
 containerPorts:
   http: 80
-  https: ""
 
 replicaCount: 1
 
@@ -33,32 +42,21 @@ resources:
 livenessProbe:
   enabled: false
 
-readinessProbe:
-  enabled: false
-
 service:
   type: ClusterIP
   ports:
     http: 80
-    https: ""
 
 ingress:
   enabled: true
   path: /api/
   annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     cert-manager.io/cluster-issuer: letsencrypt 
     nginx.ingress.kubernetes.io/rewrite-target: /api/$2
   ingressClassName: "nginx"
   tls: true
 
-# not needed in this setup
-serviceAccount:
-  create: false
-
-# not needed in this setup
-networkPolicy:
-  enabled: false
 
 extraConfigMapEnvVars: {}
 
@@ -100,7 +98,7 @@ extraDeploy:
       {{- end }}
     data:
       {{- if .Values.extraConfigMapEnvVars }}
-      {{- include "common.tplvalues.render" ( dict "value" .Values.extraConfigMapEnvVarsEncoded "context" $ ) | nindent 6 }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.extraConfigMapEnvVars "context" $ ) | nindent 6 }}
       {{- end }}
   - |
     {{ $secret_name := printf "%s" ( include "common.names.fullname" .) }}
