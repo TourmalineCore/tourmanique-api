@@ -2,7 +2,7 @@ nameOverride: "python"
 
 image:
   registry: ghcr.io
-  repository: tourmalinecore/tourmanique/api
+  repository: tourmalinecore/tourmanique-api
   tag: ""
   pullPolicy: Always
   debug: true
