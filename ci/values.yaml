@@ -6,12 +6,12 @@ image:
   tag: ""
   pullPolicy: Always
   debug: true
-# command:
-#   - "poetry"
-# args:
-#   - "run"
-#   - "flask"
-#   - "run"
+command:
+  - "poetry"
+args:
+  - "run"
+  - "flask"
+  - "run"
 
 podAnnotations:
   checksum/config: "{{ include (print $.Template.BasePath \"/extra-list.yaml\") . | sha256sum }}"
