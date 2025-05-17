@@ -21,13 +21,13 @@ args:
   - "run"
 
 
-bindURLs: 'http://+:80'
+bindURLs: 'http://+:5000'
 
 podAnnotations:
   checksum/config: "{{ include (print $.Template.BasePath \"/extra-list.yaml\") . | sha256sum }}"
 
 containerPorts:
-  http: 80
+  http: 5000
 
 replicaCount: 1
 
@@ -45,7 +45,7 @@ livenessProbe:
 service:
   type: ClusterIP
   ports:
-    http: 80
+    http: 5000
 
 ingress:
   enabled: true
