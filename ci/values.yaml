@@ -1,7 +1,7 @@
 image:
   registry: ghcr.io
   repository: tourmalinecore/tourmanique-api
-  tag: ""
+  tag: "latest"
   pullPolicy: Always
   debug: false
   livenessProbe:
