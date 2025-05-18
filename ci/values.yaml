@@ -58,3 +58,43 @@ extraConfigMapEnvVarsEncoded: |
   {{- range $k, $v := .Values.extraConfigMapEnvVars }}
   {{ $k }}: {{ $v | quote }}
   {{- end }}
+
+extraDeploy:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ include "common.names.fullname" . }}
+      namespace: {{ include "common.names.namespace" . | quote }}
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 6 }}
+        {{- end }}
+      {{- if .Values.commonAnnotations }}
+      annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 6 }}
+      {{- end }}
+    data:
+      {{- if .Values.extraConfigMapEnvVars }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.extraConfigMapEnvVars "context" $ ) | nindent 6 }}
+      {{- end }}
+  - |
+    {{ $secret_name := printf "%s" ( include "common.names.fullname" .) }}
+    {{- if eq ( tpl .Values.extraEnvVarsSecret . ) $secret_name }}
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: {{ $secret_name }}
+      namespace: {{ include "common.names.namespace" . | quote }}
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 6 }}
+        {{- end }}
+      {{- if .Values.commonAnnotations }}
+      annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 6 }}
+      {{- end }}
+    type: Opaque
+    data:
+      {{- if .Values.extraSecretEnvVarsEncoded }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.extraSecretEnvVarsEncoded "context" $ ) | trim | nindent 6 }}
+      {{- end }}
+    {{- end }}
