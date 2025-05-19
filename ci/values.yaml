@@ -4,12 +4,6 @@ image:
   tag: "latest"
   pullPolicy: Always
   debug: false
-  livenessProbe:
-    enabled: false
-  pullSecrets: []
-  readinessProbe:
-    enabled: false
-  pullCredentials: {}
   
 command:
   - "poetry"
@@ -23,6 +17,15 @@ podAnnotations:
 
 containerPorts:
   http: 5000
+  https: ""
+
+livenessProbe:
+  enabled: false
+
+readinessProbe:
+  enabled: false
+
+bindURLs: http://+:5000
 
 replicaCount: 1
 
@@ -34,13 +37,11 @@ resources:
     cpu: 1m
     memory: 25Mi
 
-livenessProbe:
-  enabled: false
-
 service:
   type: ClusterIP
   ports:
     http: 5000
+    https: ""
 
 ingress:
   enabled: true
@@ -53,6 +54,9 @@ ingress:
   tls: true
 
 extraConfigMapEnvVars: {}
+
+# this is needed to tell the container to read extra env vars from the dedicated Config Map that we create in extraDeploy
+extraEnvVarsCM: "{{ include \"common.names.fullname\" . }}"
 
 extraConfigMapEnvVarsEncoded: |
   {{- range $k, $v := .Values.extraConfigMapEnvVars }}
@@ -77,24 +81,3 @@ extraDeploy:
       {{- if .Values.extraConfigMapEnvVars }}
       {{- include "common.tplvalues.render" ( dict "value" .Values.extraConfigMapEnvVars "context" $ ) | nindent 6 }}
       {{- end }}
-  - |
-    {{ $secret_name := printf "%s" ( include "common.names.fullname" .) }}
-    {{- if eq ( tpl .Values.extraEnvVarsSecret . ) $secret_name }}
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: {{ $secret_name }}
-      namespace: {{ include "common.names.namespace" . | quote }}
-      labels: {{- include "common.labels.standard" . | nindent 6 }}
-        {{- if .Values.commonLabels }}
-        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 6 }}
-        {{- end }}
-      {{- if .Values.commonAnnotations }}
-      annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 6 }}
-      {{- end }}
-    type: Opaque
-    data:
-      {{- if .Values.extraSecretEnvVarsEncoded }}
-      {{- include "common.tplvalues.render" ( dict "value" .Values.extraSecretEnvVarsEncoded "context" $ ) | trim | nindent 6 }}
-      {{- end }}
-    {{- end }}
