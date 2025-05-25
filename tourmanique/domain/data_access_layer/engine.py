@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
 
-from tourmanique.config.postgres_config import postgres_username, postgres_password, postgres_host, postgres_database
+from tourmanique.config.postgres_config import postgres_username, postgres_password, postgres_host, postgres_database, postgres_port
 
 
 def add_engine_pidguard(engine):
@@ -40,7 +40,7 @@ def add_engine_pidguard(engine):
 
 class DBEngineProvider:
     def __init__(self):
-        self.connection_string = f'postgresql+psycopg2://{postgres_username}:{postgres_password}@{postgres_host}/{postgres_database}'
+        self.connection_string = f'postgresql+psycopg2://{postgres_username}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_database}'
 
         self.app_db_engine = create_engine(
             self.connection_string,
@@ -53,9 +53,10 @@ class DBEngineProvider:
             username: str,
             password: str,
             host: str,
+            port: str,
             database: str,
     ) -> str:
-        self.connection_string = f'postgresql+psycopg2://{username}:{password}@{host}/{database}'
+        self.connection_string = f'postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}'
         return self.connection_string
 
     def set_engine(self, engine):
