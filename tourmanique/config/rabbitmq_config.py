@@ -1,7 +1,7 @@
 import os
 
 rabbitmq_host = os.getenv('RABBITMQ_HOST')
-rabbitmq_port = os.getenv('RABBITMQ_PORT')
+rabbitmq_port = int(os.getenv('RABBITMQ_PORT'))
 rabbitmq_username = os.getenv('RABBITMQ_DEFAULT_USER')
 rabbitmq_password = os.getenv('RABBITMQ_DEFAULT_PASS')
 
