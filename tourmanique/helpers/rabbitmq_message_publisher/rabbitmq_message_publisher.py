@@ -4,10 +4,11 @@ import logging
 import pika
 from pika import ConnectionParameters, PlainCredentials
 
-from tourmanique.config.rabbitmq_config import rabbitmq_host, rabbitmq_username, rabbitmq_password
+from tourmanique.config.rabbitmq_config import rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password
 
 PARAMETERS = ConnectionParameters(
     host=rabbitmq_host,
+    port=rabbitmq_port,
     credentials=PlainCredentials(rabbitmq_username, rabbitmq_password),
 )
 
